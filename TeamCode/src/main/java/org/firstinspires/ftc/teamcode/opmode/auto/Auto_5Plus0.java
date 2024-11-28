@@ -38,18 +38,18 @@ import org.firstinspires.ftc.teamcode.util.PoseConstants;
 public class Auto_5Plus0 extends LinearOpMode {
 
     public static Pose redBasketAngle = PoseConstants.Score.redBasketAngle;
-    public static double sample1x = 36;
-    public static double sample1y = 103;
+    public static double sample1x = 35;
+    public static double sample1y = 108;
     public static double sample1degrees = 60;
     public static int sample1ext = 750;
 
-    public static double sample2x = 45;
-    public static double sample2y = 109;
+    public static double sample2x = 41;
+    public static double sample2y = 115;
     public static double sample2degrees = 90;
     public static int sample2ext = 650;
 
-    public static double sample3x = 45;
-    public static double sample3y = 119;
+    public static double sample3x = 39.5;
+    public static double sample3y = 123;
     public static double sample3degrees = 90;
     public static int sample3ext = 500;
 

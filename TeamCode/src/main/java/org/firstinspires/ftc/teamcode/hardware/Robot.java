@@ -54,8 +54,8 @@ public class Robot extends MecanumDrive {
         this.intakeSubsystem = new IntakeSubsystem(hardwareMap, names.extension, names.arm1, names.arm2, names.intake, names.leds, names.intakeSensor);
         this.specimenSubsystem = new SpecimenSubsystem(hardwareMap, names.specimenClaw, names.specimenLift);
 
-        this.webcam = hardwareMap.get(WebcamName.class, names.webcam);
-        startCamera();
+//        this.webcam = hardwareMap.get(WebcamName.class, names.webcam);
+//        startCamera();
 
 
 

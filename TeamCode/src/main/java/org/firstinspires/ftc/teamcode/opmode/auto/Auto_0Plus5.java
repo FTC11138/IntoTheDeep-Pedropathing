@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.IntakePullBackCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftDownCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SpecimenDepositCommand;
+import org.firstinspires.ftc.teamcode.commands.advancedcommand.SpecimenGrabCommand;
 import org.firstinspires.ftc.teamcode.commands.drivecommand.PathChainCommand;
 import org.firstinspires.ftc.teamcode.commands.drivecommand.PathCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.SpecimenClawStateCommand;
@@ -22,16 +23,14 @@ import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.PathBuilder;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.util.Constants;
 import org.firstinspires.ftc.teamcode.util.Globals;
 import org.firstinspires.ftc.teamcode.util.PoseConstants;
 
 @Config
-@Autonomous(name = "0+4", preselectTeleOp = "Solo")
-public class Auto_0Plus4 extends LinearOpMode {
+@Autonomous(name = "0+5", preselectTeleOp = "Solo")
+public class Auto_0Plus5 extends LinearOpMode {
 
     public static double intakeX = 10;
     public static double intakeY = 41;
@@ -42,7 +41,7 @@ public class Auto_0Plus4 extends LinearOpMode {
     public static double parkDegrees = 180;
 
     public static Path preload;
-    public static Path sampleDragPath1, sampleDragPath2, sampleDragPath3, sampleDragPath4;
+    public static Path sampleDragPath1, sampleDragPath2, sampleDragPath3, sampleDragPath4, sampleDragPath5, sampleDragPath6;
     public static Path obsvToIntakePath;
     public static Path intakeToChamberPath, chamberToIntakePath;
     public static Path parkPath;
@@ -86,13 +85,25 @@ public class Auto_0Plus4 extends LinearOpMode {
         ));
         sampleDragPath4.setConstantHeadingInterpolation(Math.toRadians(-90));
 
+        sampleDragPath5 = new Path(new BezierCurve(
+                sampleDragPath4.getLastControlPoint(),
+                new Point(63.800, 18.700, Point.CARTESIAN),
+                new Point(61.000, 9.000, Point.CARTESIAN)
+        ));
+        sampleDragPath5.setConstantHeadingInterpolation(-90);
+
+        sampleDragPath6 = new Path(new BezierLine(
+                sampleDragPath5.getLastControlPoint(),
+                new Point(20.000, 9.000, Point.CARTESIAN)
+        ));
+        sampleDragPath6.setConstantHeadingInterpolation(-90);
 
 
 
 
 
         obsvToIntakePath = new Path(new BezierCurve(
-                sampleDragPath4.getLastControlPoint(),
+                sampleDragPath6.getLastControlPoint(),
                 new Point(19.900, 45.650, Point.CARTESIAN),
                 new Point(22.6, 40.2, Point.CARTESIAN),
                 new Point(intakePose)
@@ -101,16 +112,14 @@ public class Auto_0Plus4 extends LinearOpMode {
 
         intakeToChamberPath = new Path(new BezierCurve(
                 new Point(intakePose),
-                new Point(32.3, 40.3, Point.CARTESIAN),
-                new Point(13.4, 69.2, Point.CARTESIAN),
+                new Point(17.6, 66.5, Point.CARTESIAN),
                 new Point(scorePose)
         ));
         intakeToChamberPath.setLinearHeadingInterpolation(intakePose.getHeading(), scorePose.getHeading());
 
         chamberToIntakePath = new Path(new BezierCurve(
                 new Point(scorePose),
-                new Point(32.3, 40.3, Point.CARTESIAN),
-                new Point(17.1, 59.7, Point.CARTESIAN),
+                new Point(17.6, 66.5, Point.CARTESIAN),
                 new Point(intakePose)
         ));
         chamberToIntakePath.setLinearHeadingInterpolation(scorePose.getHeading(), intakePose.getHeading());
@@ -160,13 +169,13 @@ public class Auto_0Plus4 extends LinearOpMode {
                 new SequentialCommandGroup(
                         new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH),
-                        new PathCommand(preload, 0.7),
+                        new PathCommand(preload, 1),
 
                         new WaitCommand(1000),
                         new SpecimenDepositCommand(),
                         new WaitCommand(500),
 
-                        new PathChainCommand(0.8, sampleDragPath1, sampleDragPath2, sampleDragPath3)
+                        new PathChainCommand(1, sampleDragPath1, sampleDragPath2, sampleDragPath3, sampleDragPath4, sampleDragPath5, sampleDragPath6)
                                 .alongWith(new SequentialCommandGroup(
                                         new WaitCommand(2000),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
@@ -174,7 +183,7 @@ public class Auto_0Plus4 extends LinearOpMode {
 
                         new PathCommand(obsvToIntakePath, 0.5),
                         new WaitCommand(1000),
-                        new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
+                        new SpecimenGrabCommand(),
                         new WaitCommand(1000),
 
                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH),
@@ -183,13 +192,13 @@ public class Auto_0Plus4 extends LinearOpMode {
                         new SpecimenDepositCommand(),
                         new WaitCommand(500),
 
-                        new PathCommand(chamberToIntakePath)
+                        new PathCommand(chamberToIntakePath, 0.7)
                                 .alongWith(new SequentialCommandGroup(
                                         new WaitCommand(1000),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
                                 )),
                         new WaitCommand(1000),
-                        new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
+                        new SpecimenGrabCommand(),
                         new WaitCommand(1000),
 
                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH),
@@ -198,13 +207,28 @@ public class Auto_0Plus4 extends LinearOpMode {
                         new SpecimenDepositCommand(),
                         new WaitCommand(500),
 
-                        new PathCommand(chamberToIntakePath)
+                        new PathCommand(chamberToIntakePath, 0.7)
                                 .alongWith(new SequentialCommandGroup(
                                         new WaitCommand(1000),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
                                 )),
                         new WaitCommand(1000),
-                        new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
+                        new SpecimenGrabCommand(),
+                        new WaitCommand(1000),
+
+                        new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH),
+                        new PathCommand(intakeToChamberPath),
+                        new WaitCommand(1000),
+                        new SpecimenDepositCommand(),
+                        new WaitCommand(500),
+
+                        new PathCommand(chamberToIntakePath, 0.7)
+                                .alongWith(new SequentialCommandGroup(
+                                        new WaitCommand(1000),
+                                        new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
+                                )),
+                        new WaitCommand(1000),
+                        new SpecimenGrabCommand(),
                         new WaitCommand(1000),
 
                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH),
@@ -227,6 +251,7 @@ public class Auto_0Plus4 extends LinearOpMode {
                                 ),
                                 () -> timer.seconds() <= 28
                         )
+
                 )
         );
 
