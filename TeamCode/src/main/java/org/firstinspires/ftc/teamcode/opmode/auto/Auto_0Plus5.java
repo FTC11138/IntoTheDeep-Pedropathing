@@ -88,13 +88,13 @@ public class Auto_0Plus5 extends LinearOpMode {
         sampleDragPath5 = new Path(new BezierCurve(
                 sampleDragPath4.getLastControlPoint(),
                 new Point(63.800, 18.700, Point.CARTESIAN),
-                new Point(61.000, 9.000, Point.CARTESIAN)
+                new Point(61.000, 14, Point.CARTESIAN)
         ));
         sampleDragPath5.setConstantHeadingInterpolation(-90);
 
         sampleDragPath6 = new Path(new BezierLine(
                 sampleDragPath5.getLastControlPoint(),
-                new Point(20.000, 9.000, Point.CARTESIAN)
+                new Point(20.000, 14, Point.CARTESIAN)
         ));
         sampleDragPath6.setConstantHeadingInterpolation(-90);
 
@@ -106,7 +106,7 @@ public class Auto_0Plus5 extends LinearOpMode {
                 sampleDragPath6.getLastControlPoint(),
                 new Point(19.900, 45.650, Point.CARTESIAN),
                 new Point(22.6, 40.2, Point.CARTESIAN),
-                new Point(intakePose)
+                new Point(9.5, 45)
         ));
         obsvToIntakePath.setLinearHeadingInterpolation(Math.toRadians(-90), intakePose.getHeading());
 

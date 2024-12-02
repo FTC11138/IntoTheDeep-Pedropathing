@@ -57,9 +57,9 @@ public class TestPedro extends LinearOpMode {
         robot.data.stopScoring();
         robot.data.setSampleLoaded();
 
-        robot.followPath(
-                createPathBetweenPoses(PoseConstants.Start.redBasket, PoseConstants.Score.redBasketAngle)
-        );
+        Globals.LIMITS = false;
+
+        robot.depositSubsystem.setLiftPosition(1, -1200);
 
         while (opModeIsActive() && !isStopRequested()) {
             CommandScheduler.getInstance().run();

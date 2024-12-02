@@ -13,6 +13,8 @@ public class Configuration {
     public final String leftRear = "lr";
     public final String rightRear = "rr";
 
+
+
     public final String specimenLift = "sLift";
 
     // Servos
@@ -29,6 +31,8 @@ public class Configuration {
     public final String specimenClaw = "sClaw";
 
     // Other Stuff
+    public final String odo = "odo";
+
     public final String leds = "leds";
 
     public final String webcam = "Webcam 1";

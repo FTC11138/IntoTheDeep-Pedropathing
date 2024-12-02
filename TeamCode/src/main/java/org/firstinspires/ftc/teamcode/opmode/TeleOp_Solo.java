@@ -129,10 +129,10 @@ public class TeleOp_Solo extends CommandOpMode {
                 cs.schedule(new ExtensionJumpCommand(-1));
             }
 
-            if (robot.intakeSubsystem.getCurrentColor() == IntakeSubsystem.DetectedColor.RED && Globals.ALLIANCE == Globals.Alliance.BLUE ||
-                    robot.intakeSubsystem.getCurrentColor() == IntakeSubsystem.DetectedColor.BLUE && Globals.ALLIANCE == Globals.Alliance.RED) {
-                cs.schedule(new SampleEjectCommand());
-            }
+//            if (robot.intakeSubsystem.getCurrentColor() == IntakeSubsystem.DetectedColor.RED && Globals.ALLIANCE == Globals.Alliance.BLUE ||
+//                    robot.intakeSubsystem.getCurrentColor() == IntakeSubsystem.DetectedColor.BLUE && Globals.ALLIANCE == Globals.Alliance.RED) {
+//                cs.schedule(new SampleEjectCommand());
+//            }
         }
 
         lastLiftChangeJoystickUp = liftChangeJoystickUp;

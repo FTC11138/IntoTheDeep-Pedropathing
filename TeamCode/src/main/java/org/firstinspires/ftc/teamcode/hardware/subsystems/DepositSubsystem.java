@@ -76,6 +76,10 @@ public class DepositSubsystem extends RE_SubsystemBase {
         return this.bucketState;
     }
 
+    public int getLiftPosition() {
+        return this.lift1.getPosition();
+    }
+
     public void setLiftPower(double power) {
         this.lift1.setPower(power);
         this.lift2.setPower(power);

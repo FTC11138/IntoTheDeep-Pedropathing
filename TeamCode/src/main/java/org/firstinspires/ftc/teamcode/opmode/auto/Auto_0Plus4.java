@@ -33,18 +33,36 @@ import org.firstinspires.ftc.teamcode.util.PoseConstants;
 @Autonomous(name = "0+4", preselectTeleOp = "Solo")
 public class Auto_0Plus4 extends LinearOpMode {
 
-    public static double intakeX = 10;
-    public static double intakeY = 41;
+    public static double intakeX = 9;
+    public static double intakeY = 45;
     public static double intakeDegrees = -90;
 
-    public static double parkX = 16;
+    public static double score1x = 38;
+    public static double score1y = 70;
+    public static double score1angle = 90;
+
+    public static double score2x = 39.5;
+    public static double score2y = 67;
+    public static double score2angle = 90;
+
+    public static double score3x = 39.5;
+    public static double score3y = 64;
+    public static double score3angle = 90;
+
+    public static double score4x = 39.5;
+    public static double score4y = 61;
+    public static double score4angle = 90;
+
+    public static double parkX = 13;
     public static double parkY = 16;
     public static double parkDegrees = 180;
 
     public static Path preload;
     public static Path sampleDragPath1, sampleDragPath2, sampleDragPath3, sampleDragPath4;
     public static Path obsvToIntakePath;
-    public static Path intakeToChamberPath, chamberToIntakePath;
+    public static Path intakeToScore2Path, score2ToIntakePath;
+    public static Path intakeToScore3Path, score3ToIntakePath;
+    public static Path intakeToScore4Path, score4ToIntakePath;
     public static Path parkPath;
 
     public void buildPaths() {
@@ -53,14 +71,19 @@ public class Auto_0Plus4 extends LinearOpMode {
         Pose intakePose = new Pose(intakeX, intakeY, Math.toRadians(intakeDegrees));
         Pose parkPose = new Pose(parkX, parkY, Math.toRadians(parkDegrees));
 
+        Pose score1Pose = new Pose(score1x, score1y, Math.toRadians(score1angle));
+        Pose score2Pose = new Pose(score2x, score2y, Math.toRadians(score2angle));
+        Pose score3Pose = new Pose(score3x, score3y, Math.toRadians(score3angle));
+        Pose score4Pose = new Pose(score4x, score4y, Math.toRadians(score4angle));
+
         preload = new Path(new BezierLine(
                 new Point(startPose),
-                new Point(scorePose)
+                new Point(score1Pose)
         ));
-        preload.setLinearHeadingInterpolation(startPose.getHeading(), scorePose.getHeading());
+        preload.setLinearHeadingInterpolation(startPose.getHeading(), score1Pose.getHeading());
 
         sampleDragPath1 = new Path(new BezierCurve(
-                new Point(scorePose),
+                preload.getLastControlPoint(),
                 new Point(14.900, 16.650, Point.CARTESIAN),
                 new Point(73.450, 50.300, Point.CARTESIAN),
                 new Point(68.000, 24.000, Point.CARTESIAN)
@@ -86,11 +109,6 @@ public class Auto_0Plus4 extends LinearOpMode {
         ));
         sampleDragPath4.setConstantHeadingInterpolation(Math.toRadians(-90));
 
-
-
-
-
-
         obsvToIntakePath = new Path(new BezierCurve(
                 sampleDragPath4.getLastControlPoint(),
                 new Point(19.900, 45.650, Point.CARTESIAN),
@@ -99,29 +117,51 @@ public class Auto_0Plus4 extends LinearOpMode {
         ));
         obsvToIntakePath.setLinearHeadingInterpolation(Math.toRadians(-90), intakePose.getHeading());
 
-        intakeToChamberPath = new Path(new BezierCurve(
-                new Point(intakePose),
-                new Point(32.3, 40.3, Point.CARTESIAN),
-                new Point(13.4, 69.2, Point.CARTESIAN),
-                new Point(scorePose)
-        ));
-        intakeToChamberPath.setLinearHeadingInterpolation(intakePose.getHeading(), scorePose.getHeading());
 
-        chamberToIntakePath = new Path(new BezierCurve(
-                new Point(scorePose),
-                new Point(32.3, 40.3, Point.CARTESIAN),
-                new Point(17.1, 59.7, Point.CARTESIAN),
+
+        // Separate paths for intake to score2, 3, 4, and back to intake
+        intakeToScore2Path = new Path(new BezierCurve(
+                new Point(intakePose),
+                new Point(17.6, 66.5, Point.CARTESIAN),
+                new Point(score2Pose)
+        ));
+        intakeToScore2Path.setLinearHeadingInterpolation(intakePose.getHeading(), score2Pose.getHeading());
+
+        score2ToIntakePath = new Path(new BezierCurve(
+                new Point(score2Pose),
+                new Point(17.6, 66.5, Point.CARTESIAN),
                 new Point(intakePose)
         ));
-        chamberToIntakePath.setLinearHeadingInterpolation(scorePose.getHeading(), intakePose.getHeading());
+        score2ToIntakePath.setLinearHeadingInterpolation(score2Pose.getHeading(), intakePose.getHeading(), 0.5);
+
+        intakeToScore3Path = new Path(new BezierCurve(
+                new Point(intakePose),
+                new Point(17.6, 66.5, Point.CARTESIAN),
+                new Point(score3Pose)
+        ));
+        intakeToScore3Path.setLinearHeadingInterpolation(intakePose.getHeading(), score3Pose.getHeading());
+
+        score3ToIntakePath = new Path(new BezierCurve(
+                new Point(score3Pose),
+                new Point(17.6, 66.5, Point.CARTESIAN),
+                new Point(8, 45)
+        ));
+        score3ToIntakePath.setLinearHeadingInterpolation(score3Pose.getHeading(), intakePose.getHeading(), 0.5);
+
+        intakeToScore4Path = new Path(new BezierCurve(
+                new Point(intakePose),
+                new Point(17.6, 66.5, Point.CARTESIAN),
+                new Point(score4Pose)
+        ));
+        intakeToScore4Path.setLinearHeadingInterpolation(intakePose.getHeading(), score4Pose.getHeading());
 
         parkPath = new Path(new BezierLine(
-                new Point(scorePose),
+                new Point(score4Pose),
                 new Point(parkPose)
         ));
-        parkPath.setLinearHeadingInterpolation(scorePose.getHeading(), parkPose.getHeading());
-
+        parkPath.setLinearHeadingInterpolation(score4Pose.getHeading(), parkPose.getHeading());
     }
+
 
     @Override
     public void runOpMode() {
@@ -160,58 +200,47 @@ public class Auto_0Plus4 extends LinearOpMode {
                 new SequentialCommandGroup(
                         new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH),
-                        new PathCommand(preload, 0.7),
+                        new PathCommand(preload),
 
-                        new WaitCommand(1000),
                         new SpecimenDepositCommand(),
-                        new WaitCommand(500),
 
-                        new PathChainCommand(0.8, sampleDragPath1, sampleDragPath2, sampleDragPath3)
-                                .alongWith(new SequentialCommandGroup(
-                                        new WaitCommand(2000),
-                                        new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
-                                )),
-
-                        new PathCommand(obsvToIntakePath, 0.5),
-                        new WaitCommand(1000),
-                        new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
-                        new WaitCommand(1000),
-
-                        new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH),
-                        new PathCommand(intakeToChamberPath),
-                        new WaitCommand(1000),
-                        new SpecimenDepositCommand(),
-                        new WaitCommand(500),
-
-                        new PathCommand(chamberToIntakePath)
+                        new PathChainCommand(1, sampleDragPath1, sampleDragPath2, sampleDragPath3, sampleDragPath4)
                                 .alongWith(new SequentialCommandGroup(
                                         new WaitCommand(1000),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
                                 )),
-                        new WaitCommand(1000),
+
+                        new PathCommand(obsvToIntakePath, 1),
                         new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
-                        new WaitCommand(1000),
+                        new WaitCommand(200),
 
                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH),
-                        new PathCommand(intakeToChamberPath),
-                        new WaitCommand(1000),
+                        new PathCommand(intakeToScore2Path),
                         new SpecimenDepositCommand(),
-                        new WaitCommand(500),
 
-                        new PathCommand(chamberToIntakePath)
+                        new PathCommand(score2ToIntakePath, 1)
                                 .alongWith(new SequentialCommandGroup(
                                         new WaitCommand(1000),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
                                 )),
-                        new WaitCommand(1000),
                         new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
-                        new WaitCommand(1000),
+                        new WaitCommand(200),
 
                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH),
-                        new PathCommand(intakeToChamberPath),
-                        new WaitCommand(1000),
+                        new PathCommand(intakeToScore3Path),
                         new SpecimenDepositCommand(),
-                        new WaitCommand(500),
+
+                        new PathCommand(score3ToIntakePath, 1)
+                                .alongWith(new SequentialCommandGroup(
+                                        new WaitCommand(1000),
+                                        new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
+                                )),
+                        new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
+                        new WaitCommand(200),
+
+                        new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH),
+                        new PathCommand(intakeToScore4Path),
+                        new SpecimenDepositCommand(),
 
                         new ConditionalCommand(
                                 new PathCommand(parkPath, 1)
@@ -225,7 +254,7 @@ public class Auto_0Plus4 extends LinearOpMode {
                                         new IntakePullBackCommand(),
                                         new LiftDownCommand()
                                 ),
-                                () -> timer.seconds() <= 28
+                                () -> timer.seconds() <= 29
                         )
                 )
         );

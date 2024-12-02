@@ -114,6 +114,9 @@ public class SpecimenSubsystem extends RE_SubsystemBase {
     public SpecimenLiftState getSpecimenLiftState() {
         return this.specimenLiftState;
     }
+    public int getSpecimenLiftPosition() {
+        return this.specimenLift.getPosition();
+    }
 
     @Override
     public void periodic() {

@@ -17,7 +17,7 @@ public class SpecimenGrabCommand extends ConditionalCommand {
         super(
                 new SequentialCommandGroup(
                     new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
-                    new WaitCommand(100),
+                    new WaitCommand(300),
                     new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRABBED)
                 ),
                 new InstantCommand(),

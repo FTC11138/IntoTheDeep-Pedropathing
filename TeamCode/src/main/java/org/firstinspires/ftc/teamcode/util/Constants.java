@@ -38,7 +38,7 @@ public class Constants {
     public static double armUp = 0.73;
     public static double armServoOffset = 0;
 
-    public static double specimenClawOpen = 0.46;
+    public static double specimenClawOpen = 0.455;
     public static double specimenClawClose = 0.4;
 
 
@@ -79,7 +79,9 @@ public class Constants {
 
     public static int specimenLiftGrab = 0;
     public static int specimenLiftGrabbedOffset = 100;
-    public static int specimenLiftHangOffset = 400;
+    public static int specimenLiftHangOffset = 300;
+    public static int specimenLiftHangTime = 325;
+    public static double specimenLiftHangPower = 1;
 
     public static double specimenLiftUpRatio = 1;
     public static double specimenLiftDownRatio = 1;
