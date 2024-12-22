@@ -1,32 +1,18 @@
 package org.firstinspires.ftc.teamcode.opmode.auto;
 
-import static org.firstinspires.ftc.teamcode.opmode.auto.AutonomousMethods.createPathBetweenPoses;
+import static org.firstinspires.ftc.teamcode.opmode.auto.AutonomousMethods.buildPath;
 
 import com.arcrobotics.ftclib.command.CommandScheduler;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.commands.advancedcommand.Ascent1Command;
-import org.firstinspires.ftc.teamcode.commands.advancedcommand.DropSampleCommand;
-import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftDownCommand;
-import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftUpCommand;
-import org.firstinspires.ftc.teamcode.commands.drivecommand.CurvePositionCommand;
-import org.firstinspires.ftc.teamcode.commands.drivecommand.LinePositionCommand;
-import org.firstinspires.ftc.teamcode.commands.subsystem.ArmStateCommand;
-import org.firstinspires.ftc.teamcode.commands.subsystem.BucketStateCommand;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
-import org.firstinspires.ftc.teamcode.hardware.subsystems.DepositSubsystem;
-import org.firstinspires.ftc.teamcode.hardware.subsystems.IntakeSubsystem;
-import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.util.Constants;
 import org.firstinspires.ftc.teamcode.util.Globals;
 import org.firstinspires.ftc.teamcode.util.PoseConstants;
 
+@Disabled
 @Autonomous(name = "Pedro Test", preselectTeleOp = "Solo")
 public class TestPedro extends LinearOpMode {
 

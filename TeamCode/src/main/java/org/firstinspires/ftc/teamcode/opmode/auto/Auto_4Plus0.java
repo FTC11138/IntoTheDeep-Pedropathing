@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.hardware.subsystems.DepositSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.util.Constants;
+import org.firstinspires.ftc.teamcode.util.DriveConstants;
 import org.firstinspires.ftc.teamcode.util.Globals;
 import org.firstinspires.ftc.teamcode.util.PoseConstants;
 
@@ -31,18 +32,22 @@ import org.firstinspires.ftc.teamcode.util.PoseConstants;
 @Autonomous(name = "4+0", preselectTeleOp = "Solo")
 public class Auto_4Plus0 extends LinearOpMode {
 
-    public static Pose redBasketAngle = PoseConstants.Score.redBasketAngle;
-    public static double sample1x = 35;
-    public static double sample1y = 108;
+    public static double scoreX = 14;
+    public static double scoreY = 126;
+    public static double scoreDegrees = -45;
+    public static Pose score;
+
+    public static double sample1x = 33;
+    public static double sample1y = 109;
     public static double sample1degrees = 60;
     public static int sample1ext = 750;
 
-    public static double sample2x = 41;
+    public static double sample2x = 39.5;
     public static double sample2y = 115;
     public static double sample2degrees = 90;
     public static int sample2ext = 650;
 
-    public static double sample3x = 39.5;
+    public static double sample3x = 38;
     public static double sample3y = 123;
     public static double sample3degrees = 90;
     public static int sample3ext = 500;
@@ -52,6 +57,7 @@ public class Auto_4Plus0 extends LinearOpMode {
         Robot robot = Robot.getInstance();
 
         Globals.IS_AUTO = true;
+        DriveConstants.pathEndTimeoutConstraint = 500;
 
         robot.initialize(hardwareMap, telemetry);
         CommandScheduler.getInstance().reset();
@@ -80,12 +86,13 @@ public class Auto_4Plus0 extends LinearOpMode {
         Pose sample1 = new Pose(sample1x, sample1y, Math.toRadians(sample1degrees));
         Pose sample2 = new Pose(sample2x, sample2y, Math.toRadians(sample2degrees));
         Pose sample3 = new Pose(sample3x, sample3y, Math.toRadians(sample3degrees));
+        score = new Pose(scoreX, scoreY, Math.toRadians(scoreDegrees));
 
         CommandScheduler.getInstance().schedule(
                 new SequentialCommandGroup(
                         new ArmStateCommand(IntakeSubsystem.ArmState.UP),
                         new BucketStateCommand(DepositSubsystem.BucketState.INTAKE),
-                        new LinePositionCommand(redBasketAngle)
+                        new LinePositionCommand(score)
                                 .alongWith(new LiftUpCommand()),
                         new DropSampleCommand(),
 
@@ -97,7 +104,7 @@ public class Auto_4Plus0 extends LinearOpMode {
 
                         new ExtensionJumpCommand(1, sample1ext),
                         new WaitCommand(500),
-                        new LinePositionCommand(redBasketAngle)
+                        new LinePositionCommand(score)
                                 .alongWith(
                                         new SequentialCommandGroup(
                                                 new IntakePullBackCommand(),
@@ -117,7 +124,7 @@ public class Auto_4Plus0 extends LinearOpMode {
 
                         new ExtensionJumpCommand(1, sample2ext),
                         new WaitCommand(500),
-                        new LinePositionCommand(redBasketAngle)
+                        new LinePositionCommand(score)
                                 .alongWith(
                                         new SequentialCommandGroup(
                                                 new IntakePullBackCommand(),
@@ -137,7 +144,7 @@ public class Auto_4Plus0 extends LinearOpMode {
 
                         new ExtensionJumpCommand(1, sample3ext),
                         new WaitCommand(500),
-                        new LinePositionCommand(redBasketAngle)
+                        new LinePositionCommand(score)
                                 .alongWith(
                                         new SequentialCommandGroup(
                                                 new IntakePullBackCommand(),

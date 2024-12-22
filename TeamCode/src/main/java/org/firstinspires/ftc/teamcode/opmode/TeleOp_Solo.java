@@ -89,11 +89,11 @@ public class TeleOp_Solo extends CommandOpMode {
 
         switch (Globals.ALLIANCE) {
             case RED:
-                fieldCentricOffset = Math.toRadians(90);
+                fieldCentricOffset = Math.toRadians(-90);
                 robot.intakeSubsystem.leds.setPattern(Constants.redPattern);
                 break;
             case BLUE:
-                fieldCentricOffset = Math.toRadians(-90);
+                fieldCentricOffset = Math.toRadians(90);
                 robot.intakeSubsystem.leds.setPattern(Constants.bluePattern);
                 break;
         }
@@ -129,8 +129,10 @@ public class TeleOp_Solo extends CommandOpMode {
                 cs.schedule(new ExtensionJumpCommand(-1));
             }
 
-//            if (robot.intakeSubsystem.getCurrentColor() == IntakeSubsystem.DetectedColor.RED && Globals.ALLIANCE == Globals.Alliance.BLUE ||
-//                    robot.intakeSubsystem.getCurrentColor() == IntakeSubsystem.DetectedColor.BLUE && Globals.ALLIANCE == Globals.Alliance.RED) {
+//            if (robot.intakeSubsystem.getCurrentColor() == IntakeSubsystem.DetectedColor.RED &&
+//                    Globals.ALLIANCE == Globals.Alliance.BLUE ||
+//                    robot.intakeSubsystem.getCurrentColor() == IntakeSubsystem.DetectedColor.BLUE &&
+//                            Globals.ALLIANCE == Globals.Alliance.RED) {
 //                cs.schedule(new SampleEjectCommand());
 //            }
         }
@@ -172,7 +174,7 @@ public class TeleOp_Solo extends CommandOpMode {
 
         scheduleCommand(lastDpadLeft, dpadLeft, new SpecimenGrabCommand()
                 .andThen(new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH)));
-        scheduleCommand(lastDpadRight, dpadRight, new SpecimenDepositCommand());
+        scheduleCommand(lastDpadRight, dpadRight, new SpecimenDepositCommand().andThen(new WaitCommand(200).andThen(new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB))));
 
         if (leftStickButton) {
             Globals.LIMITS = false;
@@ -199,6 +201,8 @@ public class TeleOp_Solo extends CommandOpMode {
         lastRightStickButton = rightStickButton;
         lastLeftStickbutton = leftStickButton;
 
+
+        if (gamepad1.touchpad) robot.setPose(new Pose());
 
         boolean leftTrigger = gamepad1.left_trigger > .5;
         boolean rightTrigger = gamepad1.right_trigger > .5;

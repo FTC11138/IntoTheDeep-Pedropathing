@@ -17,7 +17,7 @@ public class PoseConstants {
     public static class Score {
         public static Pose redBasket = new Pose(-54 + 72, -54 + 72, Math.toRadians(45));
         public static Pose redBasketWall = new Pose(-50 + 72, -63.5 + 72, Math.toRadians(0));
-        public static Pose redBasketAngle = new Pose(15, 126, Math.toRadians(-45));
+        public static Pose redBasketAngle = new Pose(15, 123, Math.toRadians(-45));
 
         public static Pose redChamber = new Pose(37, 73, Math.toRadians(90));
         // 14,

@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.commands.drivecommand;
 
-import static org.firstinspires.ftc.teamcode.opmode.auto.AutonomousMethods.createPathBetweenPoses;
+import static org.firstinspires.ftc.teamcode.opmode.auto.AutonomousMethods.buildPath;
 
 import com.arcrobotics.ftclib.command.CommandBase;
 
@@ -22,7 +22,7 @@ public class LinePositionCommand extends CommandBase {
     public void initialize() {
         this.startPose = robot.getPose();
 
-        robot.followPath(createPathBetweenPoses(startPose, endPose));
+        robot.followPath(buildPath(startPose, endPose));
     }
 
     @Override

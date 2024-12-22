@@ -13,7 +13,6 @@ import org.firstinspires.ftc.teamcode.hardware.subsystems.SpecimenSubsystem;
 import org.firstinspires.ftc.teamcode.util.wrappers.RE_SubsystemBase;
 import org.firstinspires.ftc.teamcode.vision.SampleAlignmentProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
-import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 import java.util.ArrayList;
@@ -55,7 +54,8 @@ public class Robot extends MecanumDrive {
         this.specimenSubsystem = new SpecimenSubsystem(hardwareMap, names.specimenClaw, names.specimenLift);
 
 //        this.webcam = hardwareMap.get(WebcamName.class, names.webcam);
-//        startCamera();
+//        setupCamera();
+//        stopCamera();
 
 
 
@@ -80,7 +80,7 @@ public class Robot extends MecanumDrive {
         this.data.currentPose = this.getPose();
     }
 
-    private void startCamera() {
+    private void setupCamera() {
         sampleAlignmentProcessor = new SampleAlignmentProcessor();
         aprilTagProcessor = new AprilTagProcessor.Builder().build();
         aprilTagProcessor.setDecimation(2);
@@ -89,6 +89,14 @@ public class Robot extends MecanumDrive {
                 .addProcessor(sampleAlignmentProcessor)
                 .setCamera(webcam)
                 .build();
+    }
+
+    public void startCamera() {
+        visionPortal.resumeStreaming();
+    }
+
+    public void stopCamera() {
+        visionPortal.stopStreaming();
     }
 
     public static Robot getInstance() {

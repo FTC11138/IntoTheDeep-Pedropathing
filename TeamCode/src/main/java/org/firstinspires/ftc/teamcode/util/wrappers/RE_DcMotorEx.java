@@ -15,7 +15,7 @@ public class RE_DcMotorEx {
     private boolean modeUpdate = false;
     private boolean useEncoder = true;
 
-    private int targetPosition = 0;
+    private int targetPosition = 0, lastTarget = 0;
     private double targetPower = 0;
     private int currentPosition = 0;
     private double power = 0.0;
@@ -35,6 +35,7 @@ public class RE_DcMotorEx {
     }
 
     public void setTargetPosition(int target, double power) {
+        this.lastTarget = this.targetPosition;
         this.targetPosition = Range.clip(target, this.params.minPosition, this.params.maxPosition);
 
         this.targetPower = power;
@@ -95,7 +96,8 @@ public class RE_DcMotorEx {
             motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
             motor.setPower(this.power);
         } else {
-            setPosition(this.targetPower, this.targetPosition);
+            if (targetPosition != lastTarget)
+                setPosition(this.targetPower, this.targetPosition);
             useEncoder = false;
             modeUpdate = true;
         }

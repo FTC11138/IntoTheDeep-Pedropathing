@@ -38,7 +38,7 @@ public class Constants {
     public static double armUp = 0.73;
     public static double armServoOffset = 0;
 
-    public static double specimenClawOpen = 0.455;
+    public static double specimenClawOpen = 0.72;
     public static double specimenClawClose = 0.4;
 
 
@@ -48,7 +48,7 @@ public class Constants {
     // LIFT
     public static int liftMin1 = 0;
     public static int liftMin2 = 0;
-    public static int liftMax1 = 1300;
+    public static int liftMax1 = 1200;
     public static int liftMid1 = 700;
     public static int liftMax2 = 100;
     public static int liftSlow = 500;
@@ -91,9 +91,23 @@ public class Constants {
 
     /* -------------------------------------------- VISION RECTANGLE CONSTANTS -------------------------------------------- */
 
+    public static double kPAngle = 0;
+    public static double kIAngle = 0;
+    public static double kDAngle = 0;
+    public static double kFAngle = 0;
+
+    public static double kPMove = 0;
+    public static double kIMove = 0;
+    public static double kDMove = 0;
+    public static double kFMove = 0;
+
+    public static double sampleAlignAngleTolerance = 2;
+    public static double sampleAlignDistTolerance = 0.3;
+
 
 
     /* --------------------------------------------  APRILTAG CONSTANTS ------------------------------------------ */
 
+    public static double monkey = 8;
 
 }

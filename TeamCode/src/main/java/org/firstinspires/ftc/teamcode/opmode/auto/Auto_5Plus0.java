@@ -1,12 +1,15 @@
 package org.firstinspires.ftc.teamcode.opmode.auto;
 
-import static org.firstinspires.ftc.teamcode.opmode.auto.AutonomousMethods.createPathBetweenPoses;
+import static org.firstinspires.ftc.teamcode.opmode.auto.AutonomousMethods.buildCurve;
+import static org.firstinspires.ftc.teamcode.opmode.auto.AutonomousMethods.buildPath;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.CommandScheduler;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.DropSampleCommand;
@@ -16,8 +19,6 @@ import org.firstinspires.ftc.teamcode.commands.advancedcommand.IntakePushOutComm
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftDownCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftUpCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SampleTransferCommand;
-import org.firstinspires.ftc.teamcode.commands.drivecommand.LinePositionCommand;
-import org.firstinspires.ftc.teamcode.commands.drivecommand.CurvePositionCommand;
 import org.firstinspires.ftc.teamcode.commands.drivecommand.PathCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.ArmStateCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.BucketStateCommand;
@@ -25,8 +26,6 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.DepositSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.util.Constants;
@@ -34,29 +33,30 @@ import org.firstinspires.ftc.teamcode.util.Globals;
 import org.firstinspires.ftc.teamcode.util.PoseConstants;
 
 @Config
+@Disabled
 @Autonomous(name = "5+0", preselectTeleOp = "Solo")
 public class Auto_5Plus0 extends LinearOpMode {
 
     public static Pose redBasketAngle = PoseConstants.Score.redBasketAngle;
-    public static double sample1x = 35;
-    public static double sample1y = 108;
+    public static double sample1x = 33;
+    public static double sample1y = 109;
     public static double sample1degrees = 60;
     public static int sample1ext = 750;
 
-    public static double sample2x = 41;
+    public static double sample2x = 39;
     public static double sample2y = 115;
     public static double sample2degrees = 90;
     public static int sample2ext = 650;
 
-    public static double sample3x = 39.5;
+    public static double sample3x = 38;
     public static double sample3y = 123;
     public static double sample3degrees = 90;
     public static int sample3ext = 500;
 
-    public static double sample4x = 36;
-    public static double sample4y = 38  ;
-    public static double sample4degrees = -60;
-    public static int sample4ext = 700;
+    public static double sample4x = 72;
+    public static double sample4y = 100;
+    public static double sample4degrees = -90;
+    public static int sample4ext = 1200;
 
 
     public static Path preload;
@@ -75,23 +75,22 @@ public class Auto_5Plus0 extends LinearOpMode {
         Pose sample4Pose = new Pose(sample4x, sample4y, Math.toRadians(sample4degrees));
 
         // Preload path
-        preload = createPathBetweenPoses(startPose, scorePose);
+        preload = buildPath(startPose, scorePose);
 
         // Sample 1 paths
-        sample1Path = createPathBetweenPoses(scorePose, sample1Pose);
-        sample1ScorePath = createPathBetweenPoses(sample1Pose, scorePose);
+        sample1Path = buildPath(scorePose, sample1Pose);
+        sample1ScorePath = buildPath(sample1Pose, scorePose);
 
         // Sample 2 paths
-        sample2Path = createPathBetweenPoses(scorePose, sample2Pose);
-        sample2ScorePath = createPathBetweenPoses(sample2Pose, scorePose);
+        sample2Path = buildPath(scorePose, sample2Pose);
+        sample2ScorePath = buildPath(sample2Pose, scorePose);
 
         // Sample 3 paths
-        sample3Path = createPathBetweenPoses(scorePose, sample3Pose);
-        sample3ScorePath = createPathBetweenPoses(sample3Pose, scorePose);
+        sample3Path = buildPath(scorePose, sample3Pose);
+        sample3ScorePath = buildPath(sample3Pose, scorePose);
 
         // Sample 4 paths
-        sample4Path = createPathBetweenPoses(scorePose, sample4Pose);
-        sample4ScorePath = createPathBetweenPoses(sample4Pose, scorePose);
+        sample4Path = buildCurve(scorePose, sample4Pose, new Point(75, 119));
     }
 
     @Override
@@ -197,11 +196,43 @@ public class Auto_5Plus0 extends LinearOpMode {
                         new PathCommand(sample4Path)
                                 .alongWith(new SequentialCommandGroup(
                                         new LiftDownCommand(),
-                                        new IntakePushOutCommand(0)
+                                        new WaitCommand(1000),
+                                        new IntakePushOutCommand(sample4ext)
                                 )),
 
                         new ExtensionJumpCommand(1, sample4ext),
                         new WaitCommand(500),
+                        new PathCommand(sample4ScorePath)
+                                .alongWith(
+                                        new SequentialCommandGroup(
+                                                new IntakePullBackCommand(),
+                                                new SampleTransferCommand(),
+                                                new WaitCommand(700),
+                                                new LiftUpCommand(),
+                                                new WaitCommand(700)
+                                        )
+                                ),
+                        new DropSampleCommand(),
+
+                        new PathCommand(sample4Path)
+                                .alongWith(new SequentialCommandGroup(
+                                        new LiftDownCommand(),
+                                        new WaitCommand(1500),
+                                        new IntakePushOutCommand(sample4ext)
+                                )),
+
+
+                        new ExtensionJumpCommand(1, 1000),
+                        new WaitCommand(500),
+
+                        new InstantCommand(() -> {
+                            sample4ScorePath = buildCurve(
+                                    robot.getPose(),
+                                    PoseConstants.Score.redBasketAngle,
+                                    new Point(74, 119)
+                            );
+                        }),
+
                         new PathCommand(sample4ScorePath)
                                 .alongWith(
                                         new SequentialCommandGroup(
