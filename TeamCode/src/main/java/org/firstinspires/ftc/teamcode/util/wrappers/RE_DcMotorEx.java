@@ -30,6 +30,10 @@ public class RE_DcMotorEx {
         return this.currentPosition;
     }
 
+    public int getTarget() {
+        return this.targetPosition;
+    }
+
     public void setPower(double power) {
         this.power = power;
     }
@@ -78,7 +82,7 @@ public class RE_DcMotorEx {
                 usePower = true;
                 power *= this.params.downRatio;
                 if (currentPosition > this.params.slow) {
-                    currentPosition *= this.params.slowRatio;
+                    power *= this.params.slowRatio;
                 }
             } else {
                 power = 0;
@@ -96,8 +100,10 @@ public class RE_DcMotorEx {
             motor.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
             motor.setPower(this.power);
         } else {
-            if (targetPosition != lastTarget)
+            if (targetPosition != lastTarget) {
                 setPosition(this.targetPower, this.targetPosition);
+                lastTarget = targetPosition;
+            }
             useEncoder = false;
             modeUpdate = true;
         }

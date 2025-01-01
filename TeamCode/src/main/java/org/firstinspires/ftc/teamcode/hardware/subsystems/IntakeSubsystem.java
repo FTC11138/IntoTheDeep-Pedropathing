@@ -4,6 +4,7 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -72,6 +73,7 @@ public class IntakeSubsystem extends RE_SubsystemBase {
     @Override
     public void updateData() {
         Robot.getInstance().data.extensionPosition = this.extension.getPosition();
+        Robot.getInstance().data.extensionTarget = this.extension.getTarget();
         Robot.getInstance().data.armState = armState;
         Robot.getInstance().data.armPosition1 = arm1.getPosition();
         Robot.getInstance().data.armPosition2 = arm2.getPosition();
@@ -155,4 +157,15 @@ public class IntakeSubsystem extends RE_SubsystemBase {
     public void updateIntakeState(IntakeState state) {
         this.intakeState = state;
     }
+
+    public void resetExtension() {
+        this.extension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.extension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public boolean extensionBusy() {
+        return extension.motor.isBusy();
+    }
+
+
 }

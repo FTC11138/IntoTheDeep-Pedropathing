@@ -72,20 +72,22 @@ public class Constants {
 
     //
     public static int specimenLiftMin = 0;
-    public static int specimenLiftLow = 300;
-    public static int specimenLiftHigh = 750;
-    public static int specimenLiftMax = 1000;
+    public static int specimenLiftLow = 100;
+    public static int specimenLiftHigh = 270;
+    public static int specimenLiftMax = 280;
     public static int specimenLiftSlow = 50;
 
     public static int specimenLiftGrab = 0;
     public static int specimenLiftGrabbedOffset = 100;
     public static int specimenLiftHangOffset = 300;
-    public static int specimenLiftHangTime = 325;
+    public static int specimenLiftHangTime = 250;
     public static double specimenLiftHangPower = 1;
 
     public static double specimenLiftUpRatio = 1;
     public static double specimenLiftDownRatio = 1;
     public static double specimenLiftSlowRatio = 1;
+
+    public static double specimenLiftMaxPower = 1;
 
 
 
@@ -96,13 +98,7 @@ public class Constants {
     public static double kDAngle = 0;
     public static double kFAngle = 0;
 
-    public static double kPMove = 0;
-    public static double kIMove = 0;
-    public static double kDMove = 0;
-    public static double kFMove = 0;
-
     public static double sampleAlignAngleTolerance = 2;
-    public static double sampleAlignDistTolerance = 0.3;
 
 
 

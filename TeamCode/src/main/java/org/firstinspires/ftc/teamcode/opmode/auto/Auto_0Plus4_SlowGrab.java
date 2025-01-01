@@ -18,9 +18,8 @@ import org.firstinspires.ftc.teamcode.commands.advancedcommand.IntakePushOutComm
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftDownCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SpecimenDepositCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SpecimenGrabCommand;
-import org.firstinspires.ftc.teamcode.commands.drivecommand.PathChainCommand;
 import org.firstinspires.ftc.teamcode.commands.drivecommand.PathCommand;
-import org.firstinspires.ftc.teamcode.commands.drivecommand.RobotSpeedCommand;
+import org.firstinspires.ftc.teamcode.commands.drivecommand.PathTimeoutChangeCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.ExtensionPositionCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.IntakeStateCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.SpecimenClawStateCommand;
@@ -29,8 +28,6 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.SpecimenSubsystem;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
-import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.util.Constants;
@@ -42,37 +39,37 @@ import org.firstinspires.ftc.teamcode.util.PoseConstants;
 @Autonomous(name = "0+4 SlowGrab", preselectTeleOp = "Solo")
 public class Auto_0Plus4_SlowGrab extends LinearOpMode {
 
-    public static double grab2X = 9;
-    public static double grab2Y = 40;
+    public static double grab2X = 9.3;
+    public static double grab2Y = 38;
     public static double grab2Degrees = -90;
 
-    public static double grab3X = 9.1;
-    public static double grab3Y = 40;
+    public static double grab3X = 8.5;
+    public static double grab3Y = 38;
     public static double grab3Degrees = -90;
 
-    public static double grab4X = 9.1;
-    public static double grab4Y = 40;
+    public static double grab4X = 8.5;
+    public static double grab4Y = 38;
     public static double grab4Degrees = -90;
 
-    public static double preGrab2X = 16;
-    public static double preGrab2Y = 40;
+    public static double preGrab2X = 10.5;
+    public static double preGrab2Y = 44;
     public static double preGrab2Degrees = -90;
 
-    public static double preGrab3X = 16;
-    public static double preGrab3Y = 40;
+    public static double preGrab3X = 9.3;
+    public static double preGrab3Y = 44;
     public static double preGrab3Degrees = -90;
 
-    public static double preGrab4X = 16;
-    public static double preGrab4Y = 42;
+    public static double preGrab4X = 9.3;
+    public static double preGrab4Y = 44;
     public static double preGrab4Degrees = -90;
 
 
-    public static double intake1X = 34;
-    public static double intake1Y = 42;
+    public static double intake1X = 35;
+    public static double intake1Y = 39;
     public static double intake1Degrees = -60;
     public static int intake1Ext = 400;
 
-    public static double intake2X = 40.5;
+    public static double intake2X = 42.5;
     public static double intake2Y = 30;
     public static double intake2Degrees = -90;
     public static int intake2Ext = 0;
@@ -80,7 +77,7 @@ public class Auto_0Plus4_SlowGrab extends LinearOpMode {
     public static double eject1X = 32;
     public static double eject1Y = 28.5;
     public static double eject1Degrees = -150;
-    public static int eject1Ext = 800;
+    public static int eject1Ext = 700;
 
     public static double eject2X = 9.3;
     public static double eject2Y = 41;
@@ -88,15 +85,15 @@ public class Auto_0Plus4_SlowGrab extends LinearOpMode {
     public static int eject2Ext = 700;
 
 
-    public static double score1x = 37;
+    public static double score1x = 36;
     public static double score1y = 73;
     public static double score1angle = 90;
 
-    public static double score2x = 37;
+    public static double score2x = 36;
     public static double score2y = 69;
     public static double score2angle = 90;
 
-    public static double score3x = 37;
+    public static double score3x = 36.5;
     public static double score3y = 65;
     public static double score3angle = 90;
 
@@ -114,13 +111,10 @@ public class Auto_0Plus4_SlowGrab extends LinearOpMode {
 
 
     public static int slowWait = 500;
-    public static double slowSpeed = 0.6;
+    public static double slowSpeed = 0.4;
 
 
     public static Path preload;
-
-    public static Path sampleDragPath1, sampleDragPath2, sampleDragPath3, sampleDragPath4;
-    public static Path obsvToIntakePath;
 
     public static Path intakeSamplePath1, intakeSamplePath2;
     public static Path ejectSamplePath1, ejectSamplePath2;
@@ -159,48 +153,6 @@ public class Auto_0Plus4_SlowGrab extends LinearOpMode {
 
         preload = buildPath(startPose, score1Pose);
 
-
-
-
-
-
-        sampleDragPath1 = new Path(new BezierCurve(
-                preload.getLastControlPoint(),
-                new Point(14.900, 16.650, Point.CARTESIAN),
-                new Point(73.450, 50.300, Point.CARTESIAN),
-                new Point(68.000, 24.000, Point.CARTESIAN)
-        ));
-        sampleDragPath1.setLinearHeadingInterpolation(scorePose.getHeading(), Math.toRadians(-90));
-
-        sampleDragPath2 = new Path(new BezierLine(
-                sampleDragPath1.getLastControlPoint(),
-                new Point(20, 24, Point.CARTESIAN)
-        ));
-        sampleDragPath2.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90));
-
-        sampleDragPath3 = new Path(new BezierCurve(
-                sampleDragPath2.getLastControlPoint(),
-                new Point(69.3, 29.5, Point.CARTESIAN),
-                new Point(61.4, 14, Point.CARTESIAN)
-        ));
-        sampleDragPath3.setConstantHeadingInterpolation(Math.toRadians(-90));
-
-        sampleDragPath4 = new Path(new BezierCurve(
-                sampleDragPath3.getLastControlPoint(),
-                new Point(20.00, 14, Point.CARTESIAN)
-        ));
-        sampleDragPath4.setConstantHeadingInterpolation(Math.toRadians(-90));
-
-        obsvToIntakePath = new Path(new BezierCurve(
-                sampleDragPath4.getLastControlPoint(),
-                new Point(19.900, 45.650, Point.CARTESIAN),
-                new Point(22.6, 40.2, Point.CARTESIAN),
-                new Point(9, 45)
-        ));
-        obsvToIntakePath.setLinearHeadingInterpolation(Math.toRadians(-90), grab2Pose.getHeading());
-
-
-
         intakeSamplePath1 = buildCurve(score1Pose, intake1Pose, new Point(0, 74.000));
 
         ejectSamplePath1 = buildPath(intake1Pose, eject1Pose);
@@ -215,13 +167,13 @@ public class Auto_0Plus4_SlowGrab extends LinearOpMode {
 
         intakeToScore2Path = buildCurve(grab2Pose, score2Pose, new Point(17.6, 66.5), 0.5);
 
-        score2ToIntakePath = buildCurve(score2Pose, preGrab3Pose, new Point(17.6, 66.5), new Point(29.9, 41), 0.5);
+        score2ToIntakePath = buildCurve(score2Pose, preGrab3Pose, new Point(17.6, 66.5), new Point(29.9, 45), 0.5);
 
         preGrabtoGrab3Path = buildPath(preGrab3Pose, grab3Pose);
 
         intakeToScore3Path = buildCurve(preGrab3Pose, score3Pose, new Point(17.6, 66.5), 0.5);
 
-        score3ToIntakePath = buildCurve(score3Pose, preGrab4Pose, new Point(17.6, 66.5), new Point(29.9, 41), 0.5);
+        score3ToIntakePath = buildCurve(score3Pose, preGrab4Pose, new Point(17.6, 66.5), new Point(29.9, 45), 0.5);
 
         preGrabtoGrab4Path = buildPath(preGrab4Pose, grab4Pose);
 
@@ -239,7 +191,7 @@ public class Auto_0Plus4_SlowGrab extends LinearOpMode {
         ElapsedTime timer = new ElapsedTime();
 
         Globals.IS_AUTO = true;
-        DriveConstants.pathEndTimeoutConstraint = 500;
+        DriveConstants.pathEndTimeoutConstraint = 250;
 
         robot.initialize(hardwareMap, telemetry);
         CommandScheduler.getInstance().reset();
@@ -263,7 +215,6 @@ public class Auto_0Plus4_SlowGrab extends LinearOpMode {
         }
 
         robot.setPose(PoseConstants.Start.redObsv);
-        robot.resetIMU();
         robot.data.stopIntaking();
         robot.data.stopScoring();
         robot.data.setSampleLoaded();
@@ -272,8 +223,13 @@ public class Auto_0Plus4_SlowGrab extends LinearOpMode {
                 new SequentialCommandGroup(
                         new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH),
+
+                        new PathTimeoutChangeCommand(100),
                         new PathCommand(preload),
                         new SpecimenDepositCommand(),
+
+
+                        new PathTimeoutChangeCommand(250),
 
 
                         new PathCommand(intakeSamplePath1)
@@ -300,6 +256,9 @@ public class Auto_0Plus4_SlowGrab extends LinearOpMode {
 
 
                         new PathCommand(ejectSamplePath2).alongWith(new IntakePullBackCommand()),
+
+
+                        new PathTimeoutChangeCommand(100),
 
                         new PathCommand(preGrabtoGrab2Path, slowSpeed)
                                 .alongWith(new IntakePushOutCommand(eject2Ext)),

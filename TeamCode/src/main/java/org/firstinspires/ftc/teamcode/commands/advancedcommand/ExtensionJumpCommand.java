@@ -20,7 +20,7 @@ public class ExtensionJumpCommand extends InstantCommand {
         super(
                 () -> {
                     Robot.getInstance().intakeSubsystem.setTargetExtensionPosition(
-                            Robot.getInstance().data.extensionPosition + dist * dir
+                            Robot.getInstance().data.extensionPosition + (dist * dir)
                     );
                 }
         );

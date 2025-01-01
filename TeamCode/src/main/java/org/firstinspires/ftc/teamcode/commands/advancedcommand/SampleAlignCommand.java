@@ -11,18 +11,13 @@ import org.firstinspires.ftc.teamcode.util.Constants;
 public class SampleAlignCommand extends CommandBase {
 
     private final Robot robot = Robot.getInstance();
-    private PIDFController anglePID, movePID;
+    private PIDFController anglePID;
 
-    private double angle, move;
-
-    public SampleAlignCommand() {
-
-    }
+    private double angle;
 
     @Override
     public void initialize() {
         anglePID = new PIDFController(new CustomPIDFCoefficients(Constants.kPAngle, Constants.kIAngle, Constants.kDAngle, Constants.kFAngle));
-        movePID = new PIDFController(new CustomPIDFCoefficients(Constants.kPMove, Constants.kIMove, Constants.kDMove, Constants.kFMove));
         robot.startTeleopDrive();
         robot.startCamera();
     }
@@ -30,22 +25,18 @@ public class SampleAlignCommand extends CommandBase {
     @Override
     public void execute() {
         angle = robot.sampleAlignmentProcessor.getAngleToRotate();
-        move = robot.sampleAlignmentProcessor.getDistanceToMove();
 
         robot.update();
 
         anglePID.updatePosition(0);
         anglePID.setTargetPosition(angle);
 
-        movePID.updatePosition(0);
-        movePID.setTargetPosition(move);
-
-        robot.setTeleOpMovementVectors(-movePID.runPIDF(), 0, -anglePID.runPIDF(), true);
+        robot.setTeleOpMovementVectors(0, 0, -anglePID.runPIDF(), true);
     }
 
     @Override
     public boolean isFinished() {
-        return angle < Constants.sampleAlignAngleTolerance && move < Constants.sampleAlignDistTolerance;
+        return angle < Constants.sampleAlignAngleTolerance;
     }
 
     @Override

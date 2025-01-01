@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.hardware.subsystems;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -15,7 +16,7 @@ public class SpecimenSubsystem extends RE_SubsystemBase {
     private final RE_DcMotorEx specimenLift;
     private final RE_DcMotorExParams specimenLiftParams = new RE_DcMotorExParams(
             Constants.specimenLiftMin, Constants.specimenLiftMax, Constants.specimenLiftSlow,
-            1, 1, Constants.specimenLiftUpRatio, Constants.specimenLiftDownRatio, Constants.specimenLiftSlowRatio
+            Constants.specimenLiftMaxPower, 1, Constants.specimenLiftUpRatio, Constants.specimenLiftDownRatio, Constants.specimenLiftSlowRatio
     );
 
     private final Servo specimenClaw;
@@ -106,6 +107,11 @@ public class SpecimenSubsystem extends RE_SubsystemBase {
             default:
                 return 0;
         }
+    }
+
+    public void resetLift() {
+        this.specimenLift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        this.specimenLift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public SpecimenClawState getSpecimenClawState() {

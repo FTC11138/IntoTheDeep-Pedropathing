@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmode.auto;
 
+import static org.firstinspires.ftc.teamcode.opmode.auto.AutonomousMethods.buildCurve;
+import static org.firstinspires.ftc.teamcode.opmode.auto.AutonomousMethods.buildPath;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
@@ -16,6 +19,7 @@ import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftDownCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SpecimenDepositCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SpecimenGrabCommand;
 import org.firstinspires.ftc.teamcode.commands.drivecommand.PathCommand;
+import org.firstinspires.ftc.teamcode.commands.drivecommand.PathTimeoutChangeCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.ExtensionPositionCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.IntakeStateCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.SpecimenClawStateCommand;
@@ -24,6 +28,8 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.SpecimenSubsystem;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierLine;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.util.Constants;
@@ -31,106 +37,101 @@ import org.firstinspires.ftc.teamcode.util.DriveConstants;
 import org.firstinspires.ftc.teamcode.util.Globals;
 import org.firstinspires.ftc.teamcode.util.PoseConstants;
 
-import static org.firstinspires.ftc.teamcode.opmode.auto.AutonomousMethods.buildPath;
-import static org.firstinspires.ftc.teamcode.opmode.auto.AutonomousMethods.buildCurve;
-
 @Config
-@Autonomous(name = "0+5 Intake", preselectTeleOp = "Solo")
-public class Auto_0Plus5_Intake extends LinearOpMode {
+@Autonomous(name = "0+5 SlowGrab", preselectTeleOp = "Solo")
+public class Auto_0Plus5_SlowGrab extends LinearOpMode {
 
-    public static double grab2X = 8.7;
-    public static double grab2Y = 40;
+    public static double grab2X = 9.3;
+    public static double grab2Y = 38;
     public static double grab2Degrees = -90;
 
-    public static double grab3X = 9.3;
-    public static double grab3Y = 40;
+    public static double grab3X = 8.5;
+    public static double grab3Y = 38;
     public static double grab3Degrees = -90;
 
-    public static double grab4X = 9.5;
-    public static double grab4Y = 40;
+    public static double grab4X = 8.5;
+    public static double grab4Y = 38;
     public static double grab4Degrees = -90;
 
-    public static double grab5X = 9.7;
-    public static double grab5Y = 40;
+    public static double grab5X = 8.5;
+    public static double grab5Y = 38;
     public static double grab5Degrees = -90;
 
-
-    public static double preGrab2X = 18;
-    public static double preGrab2Y = 40;
+    public static double preGrab2X = 10.5;
+    public static double preGrab2Y = 44;
     public static double preGrab2Degrees = -90;
 
-    public static double preGrab3X = 16;
-    public static double preGrab3Y = 40;
+    public static double preGrab3X = 9.3;
+    public static double preGrab3Y = 44;
     public static double preGrab3Degrees = -90;
 
-    public static double preGrab4X = 16;
-    public static double preGrab4Y = 40;
+    public static double preGrab4X = 9.3;
+    public static double preGrab4Y = 44;
     public static double preGrab4Degrees = -90;
 
-    public static double preGrab5X = 16;
-    public static double preGrab5Y = 40;
+    public static double preGrab5X = 9.3;
+    public static double preGrab5Y = 44;
     public static double preGrab5Degrees = -90;
 
 
-    public static double intake1X = 34.5;
-    public static double intake1Y = 41.5;
+    public static double intake1X = 35;
+    public static double intake1Y = 39;
     public static double intake1Degrees = -60;
-    public static int intake1Ext = 300;
+    public static int intake1Ext = 400;
 
-    public static double intake2X = 40;
-    public static double intake2Y = 32;
+    public static double intake2X = 42.5;
+    public static double intake2Y = 30;
     public static double intake2Degrees = -90;
-    public static int intake2Ext = 100;
+    public static int intake2Ext = 0;
 
-    public static double intake3X = 41;
-    public static double intake3Y = 22;
+    public static double intake3X = 42.5;
+    public static double intake3Y = 23;
     public static double intake3Degrees = -90;
     public static int intake3Ext = 0;
 
     public static double eject1X = 32;
     public static double eject1Y = 28.5;
     public static double eject1Degrees = -150;
-    public static int eject1Ext = 800;
+    public static int eject1Ext = 700;
 
     public static double eject2X = 32;
-    public static double eject2Y = 18.4;
-    public static double eject2Degrees = -180;
-    public static int eject2Ext = 700;
+    public static double eject2Y = 30;
+    public static double eject2Degrees = -150;
+    public static int eject2Ext = 800;
 
-    public static double eject3X = 9;
-    public static double eject3Y = 42;
+    public static double eject3X = 9.3;
+    public static double eject3Y = 41;
     public static double eject3Degrees = -90;
     public static int eject3Ext = 700;
 
 
-    public static double score1x = 37;
-    public static double score1y = 74;
+    public static double score1x = 36;
+    public static double score1y = 73;
     public static double score1angle = 90;
 
-    public static double score2x = 37;
-    public static double score2y = 71;
+    public static double score2x = 36;
+    public static double score2y = 69;
     public static double score2angle = 90;
 
-    public static double score3x = 37;
-    public static double score3y = 68;
+    public static double score3x = 36.5;
+    public static double score3y = 65;
     public static double score3angle = 90;
 
     public static double score4x = 37;
-    public static double score4y = 65;
+    public static double score4y = 61;
     public static double score4angle = 90;
 
-    public static double score5x = 38;
-    public static double score5y = 62;
+    public static double score5x = 37;
+    public static double score5y = 57;
     public static double score5angle = 90;
 
     public static double parkX = 11;
     public static double parkY = 38;
     public static double parkDegrees = 180;
 
-    public static double slowSpeed = 1;
 
-    public static int outtakeTime = 00;
-
+    public static int slowWait = 500;
+    public static double slowSpeed = 0.4;
 
 
     public static Path preload;
@@ -178,6 +179,7 @@ public class Auto_0Plus5_Intake extends LinearOpMode {
         preload = buildPath(startPose, score1Pose);
 
 
+
         intakeSamplePath1 = buildCurve(score1Pose, intake1Pose, new Point(0, 74.000));
 
         ejectSamplePath1 = buildPath(intake1Pose, eject1Pose);
@@ -188,7 +190,8 @@ public class Auto_0Plus5_Intake extends LinearOpMode {
 
         intakeSamplePath3 = buildPath(eject2Pose, intake3Pose);
 
-        ejectSamplePath3 = buildPath(intake3Pose, grab2Pose);
+        ejectSamplePath3 = buildPath(intake3Pose, preGrab2Pose);
+
 
         preGrabtoGrab2Path = buildPath(preGrab2Pose, grab2Pose);
 
@@ -196,26 +199,27 @@ public class Auto_0Plus5_Intake extends LinearOpMode {
 
         intakeToScore2Path = buildCurve(grab2Pose, score2Pose, new Point(17.6, 66.5), 0.5);
 
-        score2ToIntakePath = buildCurve(score2Pose, grab3Pose, new Point(17.6, 66.5), new Point(29.9, 41), 0.5);
+        score2ToIntakePath = buildCurve(score2Pose, preGrab3Pose, new Point(17.6, 66.5), new Point(29.9, 45), 0.5);
 
         preGrabtoGrab3Path = buildPath(preGrab3Pose, grab3Pose);
 
         intakeToScore3Path = buildCurve(preGrab3Pose, score3Pose, new Point(17.6, 66.5), 0.5);
 
-        score3ToIntakePath = buildCurve(score3Pose, grab4Pose, new Point(17.6, 66.5), new Point(29.9, 41), 0.5);
+        score3ToIntakePath = buildCurve(score3Pose, preGrab4Pose, new Point(17.6, 66.5), new Point(29.9, 45), 0.5);
 
         preGrabtoGrab4Path = buildPath(preGrab4Pose, grab4Pose);
 
-        intakeToScore4Path = buildCurve(grab4Pose, score4Pose, new Point(17.6, 66.5), 0.5);
+        intakeToScore4Path = buildCurve(preGrab4Pose, score4Pose, new Point(17.6, 66.5), 0.5);
 
-        score4ToIntakePath = buildCurve(score4Pose, grab5Pose, new Point(17.6, 66.5), new Point(29.9, 41), 0.5);
+        score4ToIntakePath = buildCurve(score4Pose, preGrab5Pose, new Point(17.6, 66.5), new Point(29.9, 45), 0.5);
 
         preGrabtoGrab5Path = buildPath(preGrab5Pose, grab5Pose);
 
-        intakeToScore5Path = buildCurve(grab5Pose, score5Pose, new Point(17.6, 66.5), new Point(29.9, 41), 0.5);
+        intakeToScore5Path = buildCurve(preGrab5Pose, score5Pose, new Point(17.6, 66.5), 0.5);
 
 
         parkPath = buildPath(score5Pose, parkPose);
+
     }
 
 
@@ -225,7 +229,7 @@ public class Auto_0Plus5_Intake extends LinearOpMode {
         ElapsedTime timer = new ElapsedTime();
 
         Globals.IS_AUTO = true;
-        DriveConstants.pathEndTimeoutConstraint = 100;
+        DriveConstants.pathEndTimeoutConstraint = 250;
 
         robot.initialize(hardwareMap, telemetry);
         CommandScheduler.getInstance().reset();
@@ -257,8 +261,14 @@ public class Auto_0Plus5_Intake extends LinearOpMode {
                 new SequentialCommandGroup(
                         new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH),
+
+                        new PathTimeoutChangeCommand(100),
                         new PathCommand(preload),
                         new SpecimenDepositCommand(),
+
+
+                        new PathTimeoutChangeCommand(250),
+
 
 
                         new PathCommand(intakeSamplePath1)
@@ -266,42 +276,41 @@ public class Auto_0Plus5_Intake extends LinearOpMode {
                                         new IntakePushOutCommand(intake1Ext),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
                                 )),
-//                        new WaitCommand(200),
-                        new ExtensionJumpCommand(1),
-                        new WaitCommand(300),
 
                         new PathCommand(ejectSamplePath1)
                                 .alongWith(new ExtensionPositionCommand(eject1Ext)),
                         new IntakeStateCommand(IntakeSubsystem.IntakeState.OUT),
-                        new WaitCommand(outtakeTime),
+                        new WaitCommand(400),
 
                         new PathCommand(intakeSamplePath2)
                                 .alongWith(new SequentialCommandGroup(
                                         new IntakePushOutCommand(intake2Ext)
                                 )),
-//                        new WaitCommand(200),
                         new ExtensionJumpCommand(1),
                         new WaitCommand(400),
 
                         new PathCommand(ejectSamplePath2)
-                                .alongWith(new ExtensionPositionCommand(eject2Ext)),
+                                .alongWith(new ExtensionPositionCommand(eject1Ext)),
                         new IntakeStateCommand(IntakeSubsystem.IntakeState.OUT),
-                        new WaitCommand(outtakeTime),
+                        new WaitCommand(400),
 
                         new PathCommand(intakeSamplePath3)
                                 .alongWith(new SequentialCommandGroup(
-                                        new IntakePushOutCommand(intake3Ext)
+                                        new IntakePushOutCommand(intake2Ext)
                                 )),
-//                        new WaitCommand(200),
                         new ExtensionJumpCommand(1),
-                        new WaitCommand(600),
+                        new WaitCommand(400),
 
-                        new PathCommand(ejectSamplePath3),
+                        new PathCommand(ejectSamplePath3).alongWith(new IntakePullBackCommand()),
 
-//                        new PathCommand(preGrabtoGrab2Path, slowSpeed)
-//                                .alongWith(new IntakePushOutCommand(eject2Ext)),
+
+
+                        new PathTimeoutChangeCommand(100),
+
+
+                        new PathCommand(preGrabtoGrab2Path, slowSpeed)
+                                .alongWith(new IntakePushOutCommand(eject2Ext)),
                         new IntakeStateCommand(IntakeSubsystem.IntakeState.OUT),
-
 
 
                         new SpecimenGrabCommand(),
@@ -314,7 +323,7 @@ public class Auto_0Plus5_Intake extends LinearOpMode {
                                         new WaitCommand(1000),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
                                 )),
-//                        new PathCommand(preGrabtoGrab3Path, slowSpeed),
+                        new PathCommand(preGrabtoGrab3Path, slowSpeed),
                         new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
                         new WaitCommand(200),
 
@@ -327,7 +336,7 @@ public class Auto_0Plus5_Intake extends LinearOpMode {
                                         new WaitCommand(1000),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
                                 )),
-//                        new PathCommand(preGrabtoGrab4Path, slowSpeed),
+                        new PathCommand(preGrabtoGrab4Path, slowSpeed),
                         new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
                         new WaitCommand(200),
 
@@ -340,7 +349,7 @@ public class Auto_0Plus5_Intake extends LinearOpMode {
                                         new WaitCommand(1000),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
                                 )),
-//                        new PathCommand(preGrabtoGrab5Path, slowSpeed),
+                        new PathCommand(preGrabtoGrab5Path, slowSpeed),
                         new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
                         new WaitCommand(200),
 

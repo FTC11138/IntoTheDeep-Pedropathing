@@ -12,13 +12,11 @@ import org.firstinspires.ftc.teamcode.commands.subsystem.BucketStateCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.IntakeStateCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftDownCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftUpCommand;
-import org.firstinspires.ftc.teamcode.hardware.Localizer;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.DepositSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.util.Globals;
 
-@Disabled
 @TeleOp (name = "Tune")
 public class TeleOp_Tune extends CommandOpMode {
 
@@ -91,6 +89,7 @@ public class TeleOp_Tune extends CommandOpMode {
 
         robot.depositSubsystem.setLiftPower(-gamepad1.right_stick_y);
         robot.intakeSubsystem.setExtensionPower(-gamepad1.left_stick_y);
+        robot.specimenSubsystem.setSpecimenLiftPower(gamepad1.right_stick_x);
 
         robot.updateData();
         robot.write();

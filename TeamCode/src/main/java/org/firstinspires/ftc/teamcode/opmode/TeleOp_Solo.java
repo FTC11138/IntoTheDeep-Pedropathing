@@ -4,13 +4,10 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
-import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
-import com.arcrobotics.ftclib.gamepad.ButtonReader;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
-import com.arcrobotics.ftclib.gamepad.KeyReader;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.DropSampleCommand;
@@ -24,13 +21,15 @@ import org.firstinspires.ftc.teamcode.commands.advancedcommand.SampleEjectComman
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SampleTransferCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SpecimenDepositCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SpecimenGrabCommand;
+import org.firstinspires.ftc.teamcode.commands.subsystem.ExtensionPositionCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.ExtensionPowerCommand;
+import org.firstinspires.ftc.teamcode.commands.subsystem.ExtensionResetCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.IntakeStateCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.LiftPowerCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.LiftResetCommand;
+import org.firstinspires.ftc.teamcode.commands.subsystem.SpecLiftResetCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.SpecimenLiftStateCommand;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
-import org.firstinspires.ftc.teamcode.hardware.Localizer;
 import org.firstinspires.ftc.teamcode.hardware.RobotData;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.SpecimenSubsystem;
@@ -71,6 +70,8 @@ public class TeleOp_Solo extends CommandOpMode {
 
     boolean lastLiftChangeJoystickUp;
     boolean lastLiftChangeJoystickDown;
+
+    boolean lastPS;
 
 
     @Override
@@ -123,11 +124,7 @@ public class TeleOp_Solo extends CommandOpMode {
         boolean liftChangeJoystickDown = gamepad1.right_stick_y > 0.8;
 
         if (robot.data.intaking) {
-            if (liftChangeJoystickUp && !lastLiftChangeJoystickUp) {
-                cs.schedule(new ExtensionJumpCommand(1));
-            } else if (liftChangeJoystickDown && !lastLiftChangeJoystickDown) {
-                cs.schedule(new ExtensionJumpCommand(-1));
-            }
+            robot.intakeSubsystem.setExtensionPower(-gamepad1.right_stick_y);
 
 //            if (robot.intakeSubsystem.getCurrentColor() == IntakeSubsystem.DetectedColor.RED &&
 //                    Globals.ALLIANCE == Globals.Alliance.BLUE ||
@@ -152,6 +149,10 @@ public class TeleOp_Solo extends CommandOpMode {
         boolean dpadRight = g1.getButton(GamepadKeys.Button.DPAD_RIGHT);
         boolean rightStickButton = g1.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON);
         boolean leftStickButton = g1.getButton(GamepadKeys.Button.LEFT_STICK_BUTTON);
+        boolean ps = gamepad1.ps;
+
+
+        scheduleCommand(lastPS, ps, new SpecLiftResetCommand());
 
         scheduleCommand(lastA, a, new SequentialCommandGroup(
                 new DropSampleCommand(),
@@ -200,6 +201,7 @@ public class TeleOp_Solo extends CommandOpMode {
         lastDpadRight = dpadRight;
         lastRightStickButton = rightStickButton;
         lastLeftStickbutton = leftStickButton;
+        lastPS = ps;
 
 
         if (gamepad1.touchpad) robot.setPose(new Pose());

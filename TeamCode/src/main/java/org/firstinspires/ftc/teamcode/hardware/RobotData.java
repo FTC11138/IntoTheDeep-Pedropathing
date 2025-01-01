@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.hardware.subsystems.DepositSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.SpecimenSubsystem;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.util.DriveConstants;
 
 public class RobotData {
 
@@ -16,6 +17,7 @@ public class RobotData {
     public DepositSubsystem.BucketState bucketState = DepositSubsystem.BucketState.NONE;
 
     public int extensionPosition = 0;
+    public int extensionTarget = 0;
     public double armPosition1 = 0;
     public double armPosition2 = 0;
     public IntakeSubsystem.ArmState armState = IntakeSubsystem.ArmState.NONE;
@@ -40,6 +42,7 @@ public class RobotData {
         telemetry.addLine();
 
         telemetry.addData("POSE", this.currentPose);
+        telemetry.addData("PATH TIMEOUT CONSTRAINT", DriveConstants.pathEndTimeoutConstraint);
         telemetry.addData("BUSY", Robot.getInstance().isBusy());
 
         telemetry.addLine();
@@ -58,6 +61,7 @@ public class RobotData {
         telemetry.addLine();
 
         telemetry.addData("Extension Position", this.extensionPosition);
+        telemetry.addData("Extension Target", this.extensionTarget);
         telemetry.addData("Arm Position 1", this.armPosition1);
         telemetry.addData("Arm Position 2", this.armPosition2);
         telemetry.addData("Arm State", this.armState);

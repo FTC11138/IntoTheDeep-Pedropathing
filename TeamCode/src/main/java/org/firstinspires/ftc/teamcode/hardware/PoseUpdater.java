@@ -68,7 +68,7 @@ public class PoseUpdater {
      */
     public PoseUpdater(HardwareMap hardwareMap) {
         // TODO: replace the second argument with your preferred localizer
-        this(hardwareMap, new ThreeWheelIMULocalizer(hardwareMap));
+        this(hardwareMap, new PinpointLocalizer(hardwareMap));
     }
 
     /**
@@ -341,7 +341,7 @@ public class PoseUpdater {
     /**
      *
      */
-    public void resetIMU() {
+    public void resetIMU() throws InterruptedException {
         localizer.resetIMU();
     }
 }

@@ -4,38 +4,36 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
+import com.acmerobotics.dashboard.config.Config;
+
 import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibration;
+import org.firstinspires.ftc.teamcode.util.Globals;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.*;
 import org.opencv.imgproc.*;
 
+@Config
 public class SampleAlignmentProcessor implements VisionProcessor {
 
-    // Color thresholds for yellow
-    private static final Scalar LOWER_YELLOW = new Scalar(20, 100, 100);
-    private static final Scalar UPPER_YELLOW = new Scalar(30, 255, 255);
+    public static Scalar LOWER_YELLOW = new Scalar(20, 100, 100);
+    public static Scalar UPPER_YELLOW = new Scalar(30, 255, 255);
 
-    // Color thresholds for red
-    private static final Scalar LOWER_RED1 = new Scalar(0, 100, 100);
-    private static final Scalar UPPER_RED1 = new Scalar(10, 255, 255);
-    private static final Scalar LOWER_RED2 = new Scalar(170, 100, 100);
-    private static final Scalar UPPER_RED2 = new Scalar(180, 255, 255);
+    public static Scalar LOWER_RED1 = new Scalar(0, 100, 100);
+    public static Scalar UPPER_RED1 = new Scalar(10, 255, 255);
+    public static Scalar LOWER_RED2 = new Scalar(170, 100, 100);
+    public static Scalar UPPER_RED2 = new Scalar(180, 255, 255);
 
-    // Color thresholds for blue
-    private static final Scalar LOWER_BLUE = new Scalar(100, 150, 50);
-    private static final Scalar UPPER_BLUE = new Scalar(130, 255, 255);
+    public static Scalar LOWER_BLUE = new Scalar(100, 150, 50);
+    public static Scalar UPPER_BLUE = new Scalar(130, 255, 255);
 
-    private static final double CAMERA_FOV_HORIZONTAL = 60.0;
-    private static final int CAMERA_INTAKE_START = 100;
-    private static final int CAMERA_PIXEL_PER_INCH = 70;
+    public static double CAMERA_FOV_HORIZONTAL = 60.0;
 
     private Rect largestRect = null; // Store the largest rectangle for use in onDrawFrame
     private double angleToRotate = 0.0; // Store the calculated angle for external access
-    private double distanceToMove = 0.0;
     private SampleColor detectedColor = SampleColor.UNKNOWN; // Store the color of the detected sample
 
     // Define the SampleColor enum
-    public static enum SampleColor {
+    public enum SampleColor {
         RED,
         YELLOW,
         BLUE,
@@ -84,10 +82,8 @@ public class SampleAlignmentProcessor implements VisionProcessor {
             double area = Imgproc.contourArea(contour);
 
             if (area > maxArea) {
-                // Determine the color of the contour
                 Mat subMat = hsvMat.submat(rect);
 
-                // Create masks for the submat
                 Mat subMaskYellow = new Mat();
                 Mat subMaskRed = new Mat();
                 Mat subMaskRed1 = new Mat();
@@ -102,12 +98,10 @@ public class SampleAlignmentProcessor implements VisionProcessor {
 
                 Core.inRange(subMat, LOWER_BLUE, UPPER_BLUE, subMaskBlue);
 
-                // Count non-zero pixels in each mask
                 int yellowCount = Core.countNonZero(subMaskYellow);
                 int redCount = Core.countNonZero(subMaskRed);
                 int blueCount = Core.countNonZero(subMaskBlue);
 
-                // Determine the predominant color in the contour
                 if (yellowCount > redCount && yellowCount > blueCount) {
                     detectedColor = SampleColor.YELLOW;
                 } else if (redCount > yellowCount && redCount > blueCount) {
@@ -118,7 +112,6 @@ public class SampleAlignmentProcessor implements VisionProcessor {
                     detectedColor = SampleColor.UNKNOWN;
                 }
 
-                // Release sub masks
                 subMaskYellow.release();
                 subMaskRed1.release();
                 subMaskRed2.release();
@@ -126,34 +119,29 @@ public class SampleAlignmentProcessor implements VisionProcessor {
                 subMaskBlue.release();
                 subMat.release();
 
+                // ignore samples of opposite alliance
+                if (detectedColor == SampleColor.RED && Globals.ALLIANCE == Globals.Alliance.BLUE ||
+                        detectedColor == SampleColor.BLUE && Globals.ALLIANCE == Globals.Alliance.RED) continue;
+
                 maxArea = area;
                 largestRect = rect;
             }
         }
 
         if (largestRect != null) {
-            // Draw a rectangle around the largest detected object
             Imgproc.rectangle(input, largestRect, new Scalar(0, 255, 0), 2);
 
-            // Calculate angle offset
             double sampleCenterX = largestRect.x + (largestRect.width / 2.0);
             double frameCenterX = input.cols() / 2.0;
             double pixelOffset = sampleCenterX - frameCenterX;
             double anglePerPixel = CAMERA_FOV_HORIZONTAL / input.cols();
             angleToRotate = pixelOffset * anglePerPixel;
 
-            // Calculate distance to move
-            double sampleCenterY = largestRect.y + (largestRect.height / 2.0);
-            double frameBottom = input.rows();
-            double pixelDistance = frameBottom - sampleCenterY - CAMERA_INTAKE_START;
-            distanceToMove = pixelDistance / CAMERA_PIXEL_PER_INCH;
         } else {
             angleToRotate = 0.0;
-            distanceToMove = 0.0;
             detectedColor = SampleColor.UNKNOWN;
         }
 
-        // Release memory
         hsvMat.release();
         maskYellow.release();
         maskRed.release();
@@ -210,10 +198,6 @@ public class SampleAlignmentProcessor implements VisionProcessor {
     // Getter for the calculated angle
     public double getAngleToRotate() {
         return angleToRotate;
-    }
-
-    public double getDistanceToMove() {
-        return distanceToMove;
     }
 
     public SampleColor getDetectedColor() {

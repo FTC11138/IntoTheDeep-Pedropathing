@@ -12,13 +12,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.apache.commons.math3.geometry.euclidean.twod.Line;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.DropSampleCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.ExtensionJumpCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.IntakePullBackCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.IntakePushOutCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftDownCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftUpCommand;
+import org.firstinspires.ftc.teamcode.commands.advancedcommand.SampleAlignCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SampleTransferCommand;
+import org.firstinspires.ftc.teamcode.commands.drivecommand.LinePositionCommand;
 import org.firstinspires.ftc.teamcode.commands.drivecommand.PathCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.ArmStateCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.BucketStateCommand;
@@ -37,7 +40,12 @@ import org.firstinspires.ftc.teamcode.util.PoseConstants;
 @Autonomous(name = "5+0", preselectTeleOp = "Solo")
 public class Auto_5Plus0 extends LinearOpMode {
 
-    public static Pose redBasketAngle = PoseConstants.Score.redBasketAngle;
+    public static double scoreX = 14;
+    public static double scoreY = 126;
+    public static double scoreDegrees = -45;
+    public static Pose score;
+
+
     public static double sample1x = 33;
     public static double sample1y = 109;
     public static double sample1degrees = 60;
@@ -56,7 +64,7 @@ public class Auto_5Plus0 extends LinearOpMode {
     public static double sample4x = 72;
     public static double sample4y = 100;
     public static double sample4degrees = -90;
-    public static int sample4ext = 1200;
+    public static int sample4ext = 250;
 
 
     public static Path preload;
@@ -67,7 +75,8 @@ public class Auto_5Plus0 extends LinearOpMode {
 
     public void buildPaths() {
         Pose startPose = PoseConstants.Start.redBasket;
-        Pose scorePose = PoseConstants.Score.redBasketAngle;
+        Pose scorePose = new Pose(scoreX, scoreY, Math.toRadians(scoreDegrees));
+        score = new Pose(scoreX, scoreY, Math.toRadians(scoreDegrees));
 
         Pose sample1Pose = new Pose(sample1x, sample1y, Math.toRadians(sample1degrees));
         Pose sample2Pose = new Pose(sample2x, sample2y, Math.toRadians(sample2degrees));
@@ -221,19 +230,12 @@ public class Auto_5Plus0 extends LinearOpMode {
                                         new IntakePushOutCommand(sample4ext)
                                 )),
 
+                        new SampleAlignCommand(),
 
                         new ExtensionJumpCommand(1, 1000),
                         new WaitCommand(500),
 
-                        new InstantCommand(() -> {
-                            sample4ScorePath = buildCurve(
-                                    robot.getPose(),
-                                    PoseConstants.Score.redBasketAngle,
-                                    new Point(74, 119)
-                            );
-                        }),
-
-                        new PathCommand(sample4ScorePath)
+                        new LinePositionCommand(score)
                                 .alongWith(
                                         new SequentialCommandGroup(
                                                 new IntakePullBackCommand(),
