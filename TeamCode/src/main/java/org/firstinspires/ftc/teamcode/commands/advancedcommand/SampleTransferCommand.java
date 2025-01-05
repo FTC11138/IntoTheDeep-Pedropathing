@@ -16,7 +16,7 @@ public class SampleTransferCommand extends ConditionalCommand {
         super(
                 new SequentialCommandGroup(
                         new ArmStateCommand(IntakeSubsystem.ArmState.TRANSFER),
-                        new WaitCommand(270),
+                        new WaitCommand(150),
                         new InstantCommand(Robot.getInstance().data::setSampleLoaded),
                         new IntakeStateCommand(IntakeSubsystem.IntakeState.OUT),
                         new WaitCommand(200),

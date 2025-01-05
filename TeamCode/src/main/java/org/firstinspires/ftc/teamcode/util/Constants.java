@@ -20,7 +20,7 @@ public class Constants {
 
     /* -------------------------------------------- AUTO CONSTANTS -------------------------------------------- */
 
-
+    public static double samplePickupTolerance = 0.3;
 
     /* -------------------------------------------- DRIVE CONSTANTS -------------------------------------------- */
 
@@ -33,13 +33,14 @@ public class Constants {
     public static double bucketIntake = 0.43;
     public static double bucketAscent = 0;
 
-    public static double armTransfer = 1;
-    public static double armIntake = 0.35;
-    public static double armUp = 0.73;
+    public static double armTransfer = 0.82;
+    public static double armIntake = 0.31;
+    public static double armFlat = 0.37;
+    public static double armUp = 0.7;
     public static double armServoOffset = 0;
 
-    public static double specimenClawOpen = 0.72;
-    public static double specimenClawClose = 0.4;
+    public static double specimenClawOpen = 0.09;
+    public static double specimenClawClose = 0.6;
 
 
 

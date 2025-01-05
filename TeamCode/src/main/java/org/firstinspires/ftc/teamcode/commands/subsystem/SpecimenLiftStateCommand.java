@@ -15,7 +15,7 @@ public class SpecimenLiftStateCommand extends ConditionalCommand {
                 new SequentialCommandGroup(
                         new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED),
                         new InstantCommand(() -> Robot.getInstance().specimenSubsystem.updateSpecimenLiftState(state)),
-                        new WaitCommand(500),
+                        new WaitCommand(250),
                         new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.OPEN)
                 ),
                 new InstantCommand(() -> {

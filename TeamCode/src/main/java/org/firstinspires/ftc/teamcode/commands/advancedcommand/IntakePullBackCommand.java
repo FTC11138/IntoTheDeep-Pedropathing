@@ -17,7 +17,8 @@ public class IntakePullBackCommand extends SequentialCommandGroup {
         super(
                 new InstantCommand(Robot.getInstance().data::stopIntaking),
                 new ArmStateCommand(IntakeSubsystem.ArmState.UP),
-                new ExtensionPositionSyncCommand(Constants.extMin),
+                new ExtensionPositionCommand(Constants.extMin),
+                new WaitCommand((int) (Robot.getInstance().intakeSubsystem.getExtensionPosition() * 0.75)),
                 new IntakeStateCommand(IntakeSubsystem.IntakeState.STOP)
         );
     }

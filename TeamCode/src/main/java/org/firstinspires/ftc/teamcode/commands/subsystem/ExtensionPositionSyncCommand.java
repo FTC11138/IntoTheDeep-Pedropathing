@@ -18,7 +18,14 @@ public class ExtensionPositionSyncCommand extends CommandBase {
     }
 
     @Override
+    public void execute() {
+        Robot.getInstance().updateData();
+        Robot.getInstance().periodic();
+        Robot.getInstance().write();
+    }
+
+    @Override
     public boolean isFinished() {
-        return Robot.getInstance().intakeSubsystem.extensionBusy();
+        return Math.abs(Robot.getInstance().intakeSubsystem.getExtensionPosition() - target) < 20;
     }
 }

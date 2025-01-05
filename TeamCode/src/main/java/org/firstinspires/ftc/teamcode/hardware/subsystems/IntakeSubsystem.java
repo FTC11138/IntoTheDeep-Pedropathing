@@ -6,10 +6,11 @@ import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcontroller.external.samples.SampleRevBlinkinLedDriver;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.util.Constants;
 import org.firstinspires.ftc.teamcode.util.wrappers.RE_DcMotorExParams;
@@ -26,7 +27,7 @@ public class IntakeSubsystem extends RE_SubsystemBase {
 
     private final Servo arm1, arm2;
     private final CRServoImplEx intake;
-    private final ColorRangeSensor colorSensor;
+    private final ColorSensor colorSensor;
 
     public final RevBlinkinLedDriver leds;
 
@@ -36,13 +37,14 @@ public class IntakeSubsystem extends RE_SubsystemBase {
     public enum IntakeState {
         IN,
         STOP,
-        OUT
+        OUT,
     }
 
     public enum ArmState {
         TRANSFER,
         INTAKE,
         UP,
+        FLAT,
         NONE
     }
 
@@ -53,7 +55,7 @@ public class IntakeSubsystem extends RE_SubsystemBase {
         NONE
     }
 
-    public IntakeSubsystem(HardwareMap hardwareMap, String ext, String arm1, String arm2, String intake, String leds, String colorSensorName) {
+    public IntakeSubsystem(HardwareMap hardwareMap, String ext, String arm1, String arm2, String intake, String leds, String colorSensor) {
         this.extension = new RE_DcMotorEx(hardwareMap.get(DcMotorEx.class, ext), extensionParams);
 
         this.arm1 = hardwareMap.get(Servo.class, arm1);
@@ -62,7 +64,7 @@ public class IntakeSubsystem extends RE_SubsystemBase {
 
         this.intake = hardwareMap.get(CRServoImplEx.class, intake);
         this.leds = hardwareMap.get(RevBlinkinLedDriver.class, leds);
-        this.colorSensor = hardwareMap.get(ColorRangeSensor.class, colorSensorName);
+        this.colorSensor = hardwareMap.get(ColorSensor.class, colorSensor);
 
         intakeState = IntakeState.STOP;
         armState = ArmState.UP;
@@ -78,6 +80,7 @@ public class IntakeSubsystem extends RE_SubsystemBase {
         Robot.getInstance().data.armPosition1 = arm1.getPosition();
         Robot.getInstance().data.armPosition2 = arm2.getPosition();
         Robot.getInstance().data.intakeState = intakeState;
+        Robot.getInstance().data.intakeDistance = getDistance();
     }
 
     public void setArmPosition(double pos) {
@@ -97,6 +100,8 @@ public class IntakeSubsystem extends RE_SubsystemBase {
                 return Constants.armIntake;
             case UP:
                 return Constants.armUp;
+            case FLAT:
+                return Constants.armFlat;
             default:
                 return 0;
         }
@@ -114,20 +119,8 @@ public class IntakeSubsystem extends RE_SubsystemBase {
         this.extension.setPosition(power, target);
     }
 
-    public DetectedColor getCurrentColor() {
-        int red = colorSensor.red();
-        int green = colorSensor.green();
-        int blue = colorSensor.blue();
-
-        if (blue > red && blue > green) {
-            return DetectedColor.BLUE;
-        } else if (red > blue && red > green) {
-            return DetectedColor.RED;
-        } else if (green > red && green > blue) {
-            return DetectedColor.YELLOW;
-        } else {
-            return DetectedColor.NONE;
-        }
+    public double getDistance() {
+        return ((DistanceSensor) colorSensor).getDistance(DistanceUnit.INCH);
     }
 
     @Override
@@ -161,6 +154,10 @@ public class IntakeSubsystem extends RE_SubsystemBase {
     public void resetExtension() {
         this.extension.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         this.extension.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public int getExtensionPosition() {
+        return extension.getPosition();
     }
 
     public boolean extensionBusy() {

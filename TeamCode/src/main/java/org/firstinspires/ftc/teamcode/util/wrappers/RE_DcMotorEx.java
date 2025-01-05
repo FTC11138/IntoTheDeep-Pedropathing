@@ -60,11 +60,12 @@ public class RE_DcMotorEx {
     public void periodic() {
         currentPosition = motor.getCurrentPosition();
 
-        if (usePower && power == 0) {
-            usePower = false;
-            targetPosition = currentPosition;
-            useEncoder = true;
-        }
+//        set position to hold current if not powered
+//        if (usePower && power == 0) {
+//            usePower = false;
+//            targetPosition = currentPosition;
+//            useEncoder = true;
+//        }
 
         if (power > 0.05) {
             useEncoder = true;
