@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.util.Constants;
 public class LiftUpCommand extends SequentialCommandGroup {
     public LiftUpCommand() {
         super(
-                new LiftPositionCommand(Constants.liftMax1, 1),
+                new LiftPositionCommand(Constants.liftMax, 1),
                 new InstantCommand(Robot.getInstance().data::startScoring)
         );
     }

@@ -9,11 +9,13 @@ public class Globals {
 
     public static boolean IS_AUTO = false;
 
-    public static Alliance ALLIANCE = Alliance.BLUE;
+    public static COLORS ALLIANCE = COLORS.BLUE;
 
-    public enum Alliance {
+    public enum COLORS {
         RED,
-        BLUE
+        BLUE,
+        YELLOW,
+        NONE
     }
 
 }

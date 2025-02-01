@@ -5,8 +5,12 @@ import com.arcrobotics.ftclib.command.CommandBase;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierCurve;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.MathFunctions;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Path;
+import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
+import org.firstinspires.ftc.teamcode.util.Constants;
+import org.firstinspires.ftc.teamcode.util.DriveConstants;
 
 public class PathCommand extends CommandBase {
 
@@ -35,16 +39,16 @@ public class PathCommand extends CommandBase {
     @Override
     public void execute() {
         robot.update();
-        robot.getDashboardPoseTracker().update();
     }
 
     @Override
     public boolean isFinished() {
-        return Thread.currentThread().isInterrupted() || !robot.isBusy();
+//        double xError = Math.abs(robot.getPose().getX() - path.getPath(0).getLastControlPoint().getX());
+//        double yError = Math.abs(robot.getPose().getY() - path.getPath(0).getLastControlPoint().getY());
+//        double headingError = Math.abs(robot.getPose().getHeading() - path.getPath(0).getHeadingGoal(1));
+
+//        return xError < Constants.pathEndXTolerance && yError < Constants.pathEndYTolerance && headingError < Constants.pathEndHeadingTolerance;
+        return !robot.isBusy();
     }
 
-    @Override
-    public void end(boolean interrupted) {
-        robot.setMaxPower(1);
-    }
 }

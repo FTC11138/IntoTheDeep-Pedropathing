@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.IntakePullBackCommand;
+import org.firstinspires.ftc.teamcode.commands.advancedcommand.IntakePushOutCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftDownCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SpecimenDepositCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SpecimenGrabCommand;
@@ -37,19 +38,19 @@ import org.firstinspires.ftc.teamcode.util.PoseConstants;
 @Autonomous(name = "0+5 Drag No Stop", preselectTeleOp = "Solo")
 public class Auto_0Plus5_DragNoStop extends LinearOpMode {
 
-    public static double grab2X = 9.3;
+    public static double grab2X = 8.7;
     public static double grab2Y = 41;
     public static double grab2Degrees = -90;
 
-    public static double grab3X = 8.5;
+    public static double grab3X = 8;
     public static double grab3Y = 38;
     public static double grab3Degrees = -90;
 
-    public static double grab4X = 8.5;
+    public static double grab4X = 8;
     public static double grab4Y = 38;
     public static double grab4Degrees = -90;
 
-    public static double grab5X = 8.5;
+    public static double grab5X = 8;
     public static double grab5Y = 38;
     public static double grab5Degrees = -90;
 
@@ -76,17 +77,17 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
     public static double dragStart1X = 36.4;
     public static double dragStart1Y = 41.7;
     public static double dragStart1Degrees = -45;
-    public static int dragStart1Ext = 620;
+    public static int dragStart1Ext = 550;
 
     public static double dragStart2X = 39;
     public static double dragStart2Y = 31.7;
     public static double dragStart2Degrees = -55;
-    public static int dragStart2Ext = 460;
+    public static int dragStart2Ext = 330;
 
     public static double dragStart3X = 41.5;
     public static double dragStart3Y = 21.7;
     public static double dragStart3Degrees = -65;
-    public static int dragStart3Ext = 200;
+    public static int dragStart3Ext = 220;
 
 
     public static double dragEnd1X = 17.7;
@@ -104,28 +105,28 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
 
 
 
-    public static double score1x = 35.5;
+    public static double score1x = 34;
     public static double score1y = 74;
     public static double score1angle = 90;
 
-    public static double score2x = 35.5;
+    public static double score2x = 35;
     public static double score2y = 72;
     public static double score2angle = 90;
 
-    public static double score3x = 36;
+    public static double score3x = 35;
     public static double score3y = 70;
     public static double score3angle = 90;
 
-    public static double score4x = 36.5;
+    public static double score4x = 35;
     public static double score4y = 68;
     public static double score4angle = 90;
 
-    public static double score5x = 37;
+    public static double score5x = 35;
     public static double score5y = 66;
     public static double score5angle = 90;
 
-    public static double parkX = 11;
-    public static double parkY = 38;
+    public static double parkX = 16;
+    public static double parkY = 35;
     public static double parkDegrees = 180;
 
 
@@ -180,30 +181,22 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
 
 
         preload = buildPath(startPose, score1Pose);
-        preload.setPathEndTimeoutConstraint(0);
 
 
 
         toDragPath = buildCurve(score1Pose, dragStart1Pose, new Point(0, 74.000));
-        toDragPath.setPathEndTimeoutConstraint(0);
 
         sampleDragPath1 = buildPath(dragStart1Pose, dragEnd1Pose);
-        sampleDragPath1.setPathEndTimeoutConstraint(0);
 
         sampleDragPath1Back = buildPath(dragEnd1Pose, dragStart2Pose);
-        sampleDragPath1Back.setPathEndTimeoutConstraint(0);
 
         sampleDragPath2 = buildPath(dragStart2Pose, dragEnd2Pose);
-        sampleDragPath2.setPathEndTimeoutConstraint(0);
 
         sampleDragPath2Back = buildPath(dragEnd2Pose, dragStart3Pose);
-        sampleDragPath2Back.setPathEndTimeoutConstraint(0);
 
         sampleDragPath3 = buildPath(dragStart3Pose, dragEnd3Pose);
-        sampleDragPath3.setPathEndTimeoutConstraint(0);
 
-        dragToIntakePath = buildPath(dragEnd3Pose, preGrab2Pose);
-        dragToIntakePath.setPathEndTimeoutConstraint(0);
+        dragToIntakePath = buildCurve(dragEnd3Pose, preGrab2Pose, new Point(17.7, 41.3));
 
 
 
@@ -215,7 +208,6 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
 
 
         intakeToScore2Path = buildCurve(grab2Pose, score2Pose, new Point(17.6, 66.5), 0.5);
-        intakeToScore2Path.setPathEndTimeoutConstraint(0);
 
         score2ToIntakePath = buildCurve(score2Pose, grab3Pose, new Point(8, score2y+7), 0.5);
 
@@ -223,7 +215,6 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
 
 
         intakeToScore3Path = buildCurve(grab4Pose, score3Pose, new Point(17.6, 66.5), 0.5);
-        intakeToScore3Path.setPathEndTimeoutConstraint(0);
 
         score3ToIntakePath = buildCurve(score3Pose, grab4Pose, new Point(8, score3y+7), 0.5);
 
@@ -231,7 +222,6 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
 
 
         intakeToScore4Path = buildCurve(grab4Pose, score4Pose, new Point(17.6, 66.5), 0.5);
-        intakeToScore4Path.setPathEndTimeoutConstraint(0);
 
         score4ToIntakePath = buildCurve(score4Pose, grab5Pose, new Point(8, score4y+7), 0.5);
 
@@ -239,7 +229,6 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
 
 
         intakeToScore5Path = buildCurve(grab5Pose, score5Pose, new Point(17.6, 66.5), 0.5);
-        intakeToScore5Path.setPathEndTimeoutConstraint(0);
 
 
         parkPath = buildPath(score5Pose, parkPose);
@@ -258,18 +247,13 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
         robot.initialize(hardwareMap, telemetry);
         CommandScheduler.getInstance().reset();
 
-        switch (Globals.ALLIANCE) {
-            case RED:
-                robot.intakeSubsystem.leds.setPattern(Constants.redPattern);
-                break;
-            case BLUE:
-                robot.intakeSubsystem.leds.setPattern(Constants.bluePattern);
-                break;
-        }
 
         buildPaths();
 
+        CommandScheduler.getInstance().schedule(new SpecimenClawStateCommand(SpecimenSubsystem.SpecimenClawState.CLOSED));
+
         while (!isStarted()) {
+
             CommandScheduler.getInstance().run();
             robot.updateData();
             robot.periodic();
@@ -294,8 +278,7 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
                         new PathCommand(toDragPath)
                                 .alongWith(new SequentialCommandGroup(
                                         new WaitCommand(1700),
-                                        new ExtensionPositionCommand(dragStart1Ext),
-                                        new ArmStateCommand(IntakeSubsystem.ArmState.INTAKE),
+                                        new IntakePushOutCommand(dragStart1Ext, false),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
                                 )),
 
@@ -331,7 +314,7 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
                         new PathCommand(intakeToScore2Path),
                         new SpecimenDepositCommand(),
 
-                        new PathCommand(score2ToIntakePath, 1)
+                        new PathCommand(score2ToIntakePath)
                                 .alongWith(new SequentialCommandGroup(
                                         new WaitCommand(1000),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
@@ -343,7 +326,7 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
                         new PathCommand(intakeToScore3Path),
                         new SpecimenDepositCommand(),
 
-                        new PathCommand(score3ToIntakePath, 1)
+                        new PathCommand(score3ToIntakePath)
                                 .alongWith(new SequentialCommandGroup(
                                         new WaitCommand(1000),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
@@ -355,7 +338,7 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
                         new PathCommand(intakeToScore4Path),
                         new SpecimenDepositCommand(),
 
-                        new PathCommand(score4ToIntakePath, 1)
+                        new PathCommand(score4ToIntakePath)
                                 .alongWith(new SequentialCommandGroup(
                                         new WaitCommand(1000),
                                         new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB)
@@ -368,7 +351,7 @@ public class Auto_0Plus5_DragNoStop extends LinearOpMode {
                         new SpecimenDepositCommand(),
 
                         new ConditionalCommand(
-                                new PathCommand(parkPath, 1)
+                                new PathCommand(parkPath)
                                         .alongWith(new SequentialCommandGroup(
                                                 new WaitCommand(500),
                                                 new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.DOWN)

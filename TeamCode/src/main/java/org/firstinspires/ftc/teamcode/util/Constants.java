@@ -17,29 +17,42 @@ public class Constants {
     /* -------------------------------------------- TELE OP CONSTANTS -------------------------------------------- */
 
 
+    public static float colorSensorGain = 2;
+
 
     /* -------------------------------------------- AUTO CONSTANTS -------------------------------------------- */
 
-    public static double samplePickupTolerance = 0.3;
+    public static double samplePickupTolerance = 1.8;
+    public static double samplePickupTurnSpeedTolerance = 5000;
 
     /* -------------------------------------------- DRIVE CONSTANTS -------------------------------------------- */
 
 
+    public static double pathEndXTolerance = 1;
+    public static double pathEndYTolerance = 1;
+    public static double pathEndHeadingTolerance = Math.toRadians(2);
+
+    public static boolean robotCentric = false;
 
 
     /* -------------------------------------------- SERVO CONSTANTS -------------------------------------------- */
 
-    public static double bucketDrop = 0;
-    public static double bucketIntake = 0.43;
+    public static double bucketDrop = 0.2;
+    public static double bucketIntake = 0.7;
     public static double bucketAscent = 0;
 
-    public static double armTransfer = 0.82;
-    public static double armIntake = 0.31;
-    public static double armFlat = 0.37;
-    public static double armUp = 0.7;
-    public static double armServoOffset = 0;
+    public static double armTransfer = 0.92;
+    public static double armIntake = 0.439;
+    public static double armFlat = 0.52;
+    public static double armUp = 0.85;
+    public static double armServoOffset = -0.05;
 
-    public static double specimenClawOpen = 0.09;
+    public static double intakePushDown = 0.39;
+    public static double intakePushUp = 0.7;
+    public static double intakePushStore = 0.57;
+    public static double intakePushDrive = 0.1;
+
+    public static double specimenClawOpen = 0.07;
     public static double specimenClawClose = 0.6;
 
 
@@ -47,12 +60,10 @@ public class Constants {
     /* -------------------------------------------- MOTOR CONSTANTS -------------------------------------------- */
 
     // LIFT
-    public static int liftMin1 = 0;
-    public static int liftMin2 = 0;
-    public static int liftMax1 = 1200;
-    public static int liftMid1 = 700;
-    public static int liftMax2 = 100;
-    public static int liftSlow = 500;
+    public static int liftMin = 0;
+    public static int liftMax = 1250;
+    public static int liftMid = 700;
+    public static int liftSlow = 400;
     public static int liftAscent = 470;
 
     public static double liftUpRatio = 1;
@@ -61,7 +72,7 @@ public class Constants {
 
     // Extension
     public static int extMin = 0;
-    public static int extIntake = 750;
+    public static int extIntake = 400;
     public static int extMax = 1500;
     public static int extSlow = 50;
 

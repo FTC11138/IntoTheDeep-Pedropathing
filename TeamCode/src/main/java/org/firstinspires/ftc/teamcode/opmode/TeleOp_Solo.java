@@ -4,14 +4,15 @@ import com.arcrobotics.ftclib.command.Command;
 import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.CommandScheduler;
 import com.arcrobotics.ftclib.command.ConditionalCommand;
+import com.arcrobotics.ftclib.command.InstantCommand;
 import com.arcrobotics.ftclib.command.SequentialCommandGroup;
 import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.DropSampleCommand;
-import org.firstinspires.ftc.teamcode.commands.advancedcommand.ExtensionJumpCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.IntakePullBackCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.IntakePushOutCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.LiftDownCommand;
@@ -21,17 +22,13 @@ import org.firstinspires.ftc.teamcode.commands.advancedcommand.SampleEjectComman
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SampleTransferCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SpecimenDepositCommand;
 import org.firstinspires.ftc.teamcode.commands.advancedcommand.SpecimenGrabCommand;
-import org.firstinspires.ftc.teamcode.commands.subsystem.ExtensionPositionCommand;
-import org.firstinspires.ftc.teamcode.commands.subsystem.ExtensionPowerCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.ExtensionResetCommand;
-import org.firstinspires.ftc.teamcode.commands.subsystem.IntakeStateCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.LiftPowerCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.LiftResetCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.SpecLiftResetCommand;
 import org.firstinspires.ftc.teamcode.commands.subsystem.SpecimenLiftStateCommand;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.RobotData;
-import org.firstinspires.ftc.teamcode.hardware.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.SpecimenSubsystem;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.util.Constants;
@@ -42,11 +39,11 @@ public class TeleOp_Solo extends CommandOpMode {
 
     private final Robot robot = Robot.getInstance();
     private final RobotData data = Robot.getInstance().data;
-    private final CommandScheduler cs = CommandScheduler.getInstance();
     private GamepadEx g1;
 
-    Pose currentPose;
-    double heading;
+
+    boolean teleOpEnabled = false;
+
     double fieldCentricOffset;
 
     boolean lastLeftTrigger;
@@ -72,6 +69,12 @@ public class TeleOp_Solo extends CommandOpMode {
     boolean lastLiftChangeJoystickDown;
 
     boolean lastPS;
+    boolean lastStart;
+    boolean lastBack;
+
+
+    double lastIntakeSpeed;
+    double lastIntakeDistance;
 
 
     @Override
@@ -84,20 +87,12 @@ public class TeleOp_Solo extends CommandOpMode {
         robot.initialize(hardwareMap, telemetry);
         robot.setPose(robot.data.currentPose);
 
+        CommandScheduler.getInstance().reset();
+        CommandScheduler.getInstance().cancelAll();
+
         data.stopIntaking();
         data.stopScoring();
         data.setSampleUnloaded();
-
-        switch (Globals.ALLIANCE) {
-            case RED:
-                fieldCentricOffset = Math.toRadians(-90);
-                robot.intakeSubsystem.leds.setPattern(Constants.redPattern);
-                break;
-            case BLUE:
-                fieldCentricOffset = Math.toRadians(90);
-                robot.intakeSubsystem.leds.setPattern(Constants.bluePattern);
-                break;
-        }
 
         robot.startTeleopDrive();
 
@@ -106,32 +101,29 @@ public class TeleOp_Solo extends CommandOpMode {
     @Override
     public void run() {
 
-        cs.run();
-        robot.periodic();
+        if (teleOpEnabled) {
 
-        robot.update();
-        currentPose = robot.getPose();
-        heading = -currentPose.getHeading();
+            CommandScheduler.getInstance().run();
 
-        robot.setTeleOpMovementVectors(
-                -gamepad1.left_stick_y * (data.scoring || data.intaking ? 0.5 : 1),
-                -gamepad1.left_stick_x * (data.scoring || data.intaking ? 0.5 : 1),
-                -gamepad1.right_stick_x * (data.scoring || data.intaking ? 0.7 : 1),
-                false
-        );
+            robot.periodic();
+
+            robot.updateData();
+            robot.write();
+
+            robot.setTeleOpMovementVectors(
+                    -gamepad1.left_stick_y * (data.scoring || data.intaking ? 0.5 : 1),
+                    -gamepad1.left_stick_x * (data.scoring || data.intaking ? 0.5 : 1),
+                    -gamepad1.right_stick_x * (data.scoring || data.intaking ? 0.7 : 1),
+                    Constants.robotCentric
+            );
+
+        }
 
         boolean liftChangeJoystickUp = gamepad1.right_stick_y < -0.8;
         boolean liftChangeJoystickDown = gamepad1.right_stick_y > 0.8;
 
         if (robot.data.intaking) {
             robot.intakeSubsystem.setExtensionPower(-gamepad1.right_stick_y);
-
-//            if (robot.intakeSubsystem.getCurrentColor() == IntakeSubsystem.DetectedColor.RED &&
-//                    Globals.ALLIANCE == Globals.Alliance.BLUE ||
-//                    robot.intakeSubsystem.getCurrentColor() == IntakeSubsystem.DetectedColor.BLUE &&
-//                            Globals.ALLIANCE == Globals.Alliance.RED) {
-//                cs.schedule(new SampleEjectCommand());
-//            }
         }
 
         lastLiftChangeJoystickUp = liftChangeJoystickUp;
@@ -150,17 +142,23 @@ public class TeleOp_Solo extends CommandOpMode {
         boolean rightStickButton = g1.getButton(GamepadKeys.Button.RIGHT_STICK_BUTTON);
         boolean leftStickButton = g1.getButton(GamepadKeys.Button.LEFT_STICK_BUTTON);
         boolean ps = gamepad1.ps;
+        boolean start = g1.getButton(GamepadKeys.Button.START);
+        boolean back = g1.getButton(GamepadKeys.Button.BACK);
 
+//        boolean sampleIn = robot.sensorSubsystem.getIntakeDistance() < Constants.samplePickupTolerance;
 
         scheduleCommand(lastPS, ps, new SpecLiftResetCommand());
 
         scheduleCommand(lastA, a, new SequentialCommandGroup(
                 new DropSampleCommand(),
                 new WaitCommand(400),
-                new LiftDownCommand()
+                new ConditionalCommand(
+                        new LiftDownCommand(),
+                        new InstantCommand(),
+                        () -> robot.data.scoring
+                )
         ));
         scheduleCommand(lastB, b, new LiftDownCommand());
-        scheduleCommand(lastX, x, new IntakeStateCommand(IntakeSubsystem.IntakeState.OUT));
         scheduleCommand(lastY, y, new LiftMidCommand());
 
         scheduleCommand(lastLeftBumper, leftBumper, new SampleEjectCommand());
@@ -175,17 +173,35 @@ public class TeleOp_Solo extends CommandOpMode {
 
         scheduleCommand(lastDpadLeft, dpadLeft, new SpecimenGrabCommand()
                 .andThen(new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.HIGH)));
-        scheduleCommand(lastDpadRight, dpadRight, new SpecimenDepositCommand().andThen(new WaitCommand(200).andThen(new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB))));
+        scheduleCommand(lastDpadRight, dpadRight, new SpecimenDepositCommand().alongWith(new InstantCommand(() -> gamepad1.rumble(500)))
+                .andThen(new WaitCommand(200).andThen(new SpecimenLiftStateCommand(SpecimenSubsystem.SpecimenLiftState.GRAB))));
 
         if (leftStickButton) {
             Globals.LIMITS = false;
-            cs.schedule(new LiftPowerCommand(-0.5));
+            CommandScheduler.getInstance().schedule(new LiftPowerCommand(-0.5));
         } else if (lastLeftStickbutton) { // if just released set power back to 0
             Globals.LIMITS = true;
-            cs.schedule(new LiftPowerCommand(0));
+            CommandScheduler.getInstance().schedule(new LiftPowerCommand(0));
         }
 
-        scheduleCommand(lastRightStickButton, rightStickButton, new LiftResetCommand());
+        scheduleCommand(lastRightStickButton, rightStickButton, new LiftResetCommand().alongWith(new InstantCommand(() -> gamepad1.rumble(500))));
+        scheduleCommand(lastBack, back, new ExtensionResetCommand().alongWith(new InstantCommand(() -> gamepad1.rumble(500))));
+
+
+
+        if (!lastX && x) {
+            Constants.robotCentric = !Constants.robotCentric;
+            gamepad1.rumble(500);
+            if (Constants.robotCentric) gamepad1.setLedColor(1, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
+            else gamepad1.setLedColor(0, 0, 1, Gamepad.LED_DURATION_CONTINUOUS);
+        }
+
+        if (!lastStart && start) {
+            teleOpEnabled = true;
+            gamepad1.rumble(2000);
+        }
+
+
 
 
 
@@ -202,32 +218,52 @@ public class TeleOp_Solo extends CommandOpMode {
         lastRightStickButton = rightStickButton;
         lastLeftStickbutton = leftStickButton;
         lastPS = ps;
+        lastStart = start;
 
 
-        if (gamepad1.touchpad) robot.setPose(new Pose());
-
+        double intakeSpeed = robot.sensorSubsystem.getIntakeSpeed();
+        double intakeDistance = robot.sensorSubsystem.getIntakeDistance();
         boolean leftTrigger = gamepad1.left_trigger > .5;
         boolean rightTrigger = gamepad1.right_trigger > .5;
 
-        if (leftTrigger && !lastLeftTrigger) {
-            cs.schedule(new IntakePushOutCommand(Constants.extIntake));
+        if (rightTrigger && !lastRightTrigger ||
+                (
+                        robot.data.intaking
+                                && (lastIntakeSpeed > Constants.samplePickupTurnSpeedTolerance)
+                                && (intakeSpeed < Constants.samplePickupTurnSpeedTolerance)
+                                && (intakeDistance < Constants.samplePickupTolerance)
+                )) {
+            gamepad1.rumble(500);
+            CommandScheduler.getInstance().schedule(
+                    new ConditionalCommand(
+                            new IntakePullBackCommand().andThen(new SampleTransferCommand()),
+                            new SampleTransferCommand(),
+                            () -> robot.data.intaking
+                    )
+            );
         }
 
-        if (rightTrigger && !lastRightTrigger) {
-            cs.schedule(new IntakePullBackCommand().andThen(new SampleTransferCommand()));
+        if (leftTrigger && !lastLeftTrigger) {
+            CommandScheduler.getInstance().schedule(new IntakePushOutCommand(Constants.extIntake, !Globals.IS_AUTO));
         }
 
         lastLeftTrigger = leftTrigger;
         lastRightTrigger = rightTrigger;
+        lastIntakeSpeed = intakeSpeed;
+        lastIntakeDistance = intakeDistance;
 
-        robot.updateData();
-        robot.write();
+        if (gamepad1.touchpad) {
+            robot.setPose(new Pose());
+            gamepad1.rumble(500);
+            gamepad1.setLedColor(0, 1, 0, 1000);
+        }
+
 
     }
 
     private void scheduleCommand(boolean lastPress, boolean currPress, Command command) {
         if (currPress && !lastPress) {
-            cs.schedule(command);
+            CommandScheduler.getInstance().schedule(command);
         }
     }
 }

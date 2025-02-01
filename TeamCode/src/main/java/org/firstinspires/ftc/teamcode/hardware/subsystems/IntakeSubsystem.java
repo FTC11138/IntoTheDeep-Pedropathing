@@ -1,43 +1,48 @@
 package org.firstinspires.ftc.teamcode.hardware.subsystems;
 
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
+import com.qualcomm.hardware.rev.RevColorSensorV3;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
-import com.qualcomm.robotcore.hardware.ColorRangeSensor;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.util.Constants;
-import org.firstinspires.ftc.teamcode.util.wrappers.RE_DcMotorExParams;
+import org.firstinspires.ftc.teamcode.util.Globals;
 import org.firstinspires.ftc.teamcode.util.wrappers.RE_DcMotorEx;
+import org.firstinspires.ftc.teamcode.util.wrappers.RE_DcMotorExParams;
 import org.firstinspires.ftc.teamcode.util.wrappers.RE_SubsystemBase;
 
 public class IntakeSubsystem extends RE_SubsystemBase {
 
     private final RE_DcMotorEx extension;
-    private final RE_DcMotorExParams extensionParams = new RE_DcMotorExParams(
-            Constants.extMin, Constants.extMax, Constants.extSlow,
-            1, 1, Constants.extUpRatio, Constants.extDownRatio, Constants.extSlowRatio
-    );
+    private final RE_DcMotorExParams extensionParams;
 
-    private final Servo arm1, arm2;
+    private final Servo arm1, arm2, intakePush;
     private final CRServoImplEx intake;
-    private final ColorSensor colorSensor;
+    private final RevColorSensorV3 colorSensor;
 
-    public final RevBlinkinLedDriver leds;
+    public RevBlinkinLedDriver leds;
 
     public IntakeState intakeState;
     public ArmState armState;
+    public IntakePushState intakePushState;
 
     public enum IntakeState {
         IN,
         STOP,
         OUT,
+    }
+
+    public enum IntakePushState {
+        PUSH,
+        UP,
+        STORE,
+        DRIVE
     }
 
     public enum ArmState {
@@ -48,26 +53,27 @@ public class IntakeSubsystem extends RE_SubsystemBase {
         NONE
     }
 
-    public enum DetectedColor {
-        BLUE,
-        RED,
-        YELLOW,
-        NONE
-    }
-
-    public IntakeSubsystem(HardwareMap hardwareMap, String ext, String arm1, String arm2, String intake, String leds, String colorSensor) {
+    public IntakeSubsystem(HardwareMap hardwareMap, String ext, String arm1, String arm2, String intake, String leds, String colorSensor, String intakePush) {
+        extensionParams = new RE_DcMotorExParams(
+                Constants.extMin, Constants.extMax, Constants.extSlow,
+                1, 1, Constants.extUpRatio, Constants.extDownRatio, Constants.extSlowRatio
+        );
         this.extension = new RE_DcMotorEx(hardwareMap.get(DcMotorEx.class, ext), extensionParams);
 
         this.arm1 = hardwareMap.get(Servo.class, arm1);
         this.arm2 = hardwareMap.get(Servo.class, arm2);
         this.arm2.setDirection(Servo.Direction.REVERSE);
 
+        this.intakePush = hardwareMap.get(Servo.class, intakePush);
+
         this.intake = hardwareMap.get(CRServoImplEx.class, intake);
-        this.leds = hardwareMap.get(RevBlinkinLedDriver.class, leds);
-        this.colorSensor = hardwareMap.get(ColorSensor.class, colorSensor);
+//        this.leds = hardwareMap.get(RevBlinkinLedDriver.class, leds);
+
+        this.colorSensor = hardwareMap.get(RevColorSensorV3.class, colorSensor);
 
         intakeState = IntakeState.STOP;
         armState = ArmState.UP;
+        intakePushState = IntakePushState.STORE;
 
         Robot.getInstance().subsystems.add(this);
     }
@@ -80,7 +86,6 @@ public class IntakeSubsystem extends RE_SubsystemBase {
         Robot.getInstance().data.armPosition1 = arm1.getPosition();
         Robot.getInstance().data.armPosition2 = arm2.getPosition();
         Robot.getInstance().data.intakeState = intakeState;
-        Robot.getInstance().data.intakeDistance = getDistance();
     }
 
     public void setArmPosition(double pos) {
@@ -90,6 +95,10 @@ public class IntakeSubsystem extends RE_SubsystemBase {
 
     public void updateArmState(ArmState state) {
         this.armState = state;
+    }
+
+    public void updateIntakePushState(IntakePushState state) {
+        this.intakePushState = state;
     }
 
     private double getArmStatePosition(ArmState state) {
@@ -107,6 +116,21 @@ public class IntakeSubsystem extends RE_SubsystemBase {
         }
     }
 
+    private double getIntakePushStatePosition(IntakePushState state) {
+        switch (state) {
+            case PUSH:
+                return Constants.intakePushDown;
+            case UP:
+                return Constants.intakePushUp;
+            case STORE:
+                return Constants.intakePushStore;
+            case DRIVE:
+                return Constants.intakePushDrive;
+            default:
+                return 0;
+        }
+    }
+
     public void setExtensionPower(double power) {
         this.extension.setPower(power);
     }
@@ -119,16 +143,46 @@ public class IntakeSubsystem extends RE_SubsystemBase {
         this.extension.setPosition(power, target);
     }
 
+
+
     public double getDistance() {
-        return ((DistanceSensor) colorSensor).getDistance(DistanceUnit.INCH);
+        return colorSensor.getDistance(DistanceUnit.INCH);
     }
+
+    public void toggleLight() {
+        colorSensor.enableLed(!colorSensor.isLightOn());
+    }
+
+    public Globals.COLORS getColor() {
+        NormalizedRGBA colors = colorSensor.getNormalizedColors();
+
+        double red = colors.red;
+        double green = colors.green;
+        double blue = colors.blue;
+
+        if (red > 0.4 && green > 0.4 && blue < 0.2) {
+            return Globals.COLORS.YELLOW;
+        } else if (red > 0.5 && green < 0.3 && blue < 0.3) {
+            return Globals.COLORS.RED;
+        } else if (blue > 0.5 && red < 0.3 && green < 0.3) {
+            return Globals.COLORS.BLUE;
+        } else {
+            return Globals.COLORS.NONE;
+        }
+    }
+
+
 
     @Override
     public void periodic() {
+        this.colorSensor.setGain(Constants.colorSensorGain);
+
         this.extension.periodic();
 
         this.arm1.setPosition(getArmStatePosition(armState) - Constants.armServoOffset);
         this.arm2.setPosition(getArmStatePosition(armState));
+
+        this.intakePush.setPosition(getIntakePushStatePosition(intakePushState));
 
         switch (this.intakeState) {
             case IN:

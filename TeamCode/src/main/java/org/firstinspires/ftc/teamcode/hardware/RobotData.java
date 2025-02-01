@@ -1,15 +1,28 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.DepositSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.hardware.subsystems.SensorSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.SpecimenSubsystem;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
+import org.firstinspires.ftc.teamcode.util.Constants;
 import org.firstinspires.ftc.teamcode.util.DriveConstants;
+import org.firstinspires.ftc.teamcode.util.Globals;
 
 public class RobotData {
 
     public long loopTime = System.currentTimeMillis();
+
+    public double intakeDistance = 0;
+    public NormalizedRGBA intakeColorValues = new NormalizedRGBA();
+    public Globals.COLORS intakeColor = Globals.COLORS.NONE;
+    public double outtakeDistance = 0;
+    public double intakeSpeed = 0;
+    public SensorSubsystem.CameraState cameraState = SensorSubsystem.CameraState.OFF;
+    public double sampleAngle = 0;
 
     public int liftPosition1 = 0;
     public int liftPosition2 = 0;
@@ -21,8 +34,9 @@ public class RobotData {
     public double armPosition1 = 0;
     public double armPosition2 = 0;
     public IntakeSubsystem.ArmState armState = IntakeSubsystem.ArmState.NONE;
+    public IntakeSubsystem.IntakePushState intakePushState = IntakeSubsystem.IntakePushState.STORE;
     public IntakeSubsystem.IntakeState intakeState = IntakeSubsystem.IntakeState.STOP;
-    public double intakeDistance = 0;
+
 
     public int specimenLiftPosition = 0;
     public SpecimenSubsystem.SpecimenClawState specimenClawState = SpecimenSubsystem.SpecimenClawState.OPEN;
@@ -44,12 +58,26 @@ public class RobotData {
         telemetry.addData("POSE", this.currentPose);
         telemetry.addData("PATH TIMEOUT CONSTRAINT", DriveConstants.pathEndTimeoutConstraint);
         telemetry.addData("BUSY", Robot.getInstance().isBusy());
+        telemetry.addLine(Constants.robotCentric ? "ROBOT CENTRIC" : "FIELD CENTRIC");
 
         telemetry.addLine();
 
         telemetry.addData("SCORING", this.scoring);
         telemetry.addData("INTAKING", this.intaking);
         telemetry.addData("SAMPLE LOADED", this.sampleLoaded);
+
+        telemetry.addLine();
+
+        telemetry.addData("Intake Distance", this.intakeDistance);
+        telemetry.addLine("Intake Color Values");
+        telemetry.addData("     Intake R", this.intakeColorValues.red);
+        telemetry.addData("     Intake G", this.intakeColorValues.green);
+        telemetry.addData("     Intake B", this.intakeColorValues.blue);
+        telemetry.addData("Intake Color", this.intakeColor);
+        telemetry.addData("Intake Speed", this.intakeSpeed);
+        telemetry.addData("Outtake Distance", this.outtakeDistance);
+        telemetry.addData("Camera State", this.cameraState);
+        telemetry.addData("Camera Sample Angle", this.sampleAngle);
 
         telemetry.addLine();
 
@@ -65,8 +93,9 @@ public class RobotData {
         telemetry.addData("Arm Position 1", this.armPosition1);
         telemetry.addData("Arm Position 2", this.armPosition2);
         telemetry.addData("Arm State", this.armState);
+        telemetry.addData("Intake Push State", this.intakePushState);
         telemetry.addData("Intake State", this.intakeState);
-        telemetry.addData("Intake Distance", this.intakeDistance);
+
 
         telemetry.addLine();
 
@@ -81,21 +110,17 @@ public class RobotData {
 
     public void startScoring() {
         scoring = true;
-        intaking = false;
     }
 
     public void stopScoring() {
         scoring = false;
-        intaking = false;
     }
 
     public void startIntaking() {
-        scoring = false;
         intaking = true;
     }
 
     public void stopIntaking() {
-        scoring = false;
         intaking = false;
     }
 

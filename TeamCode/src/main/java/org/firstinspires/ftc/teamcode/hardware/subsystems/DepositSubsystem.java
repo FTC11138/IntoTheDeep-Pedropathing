@@ -15,12 +15,12 @@ public class DepositSubsystem extends RE_SubsystemBase {
 
     private RE_DcMotorEx lift1, lift2;
     private final RE_DcMotorExParams liftParams = new RE_DcMotorExParams(
-            Constants.liftMin1, Constants.liftMax1, Constants.liftSlow,
+            Constants.liftMin, Constants.liftMax, Constants.liftSlow,
             1, 1, Constants.liftUpRatio, Constants.liftDownRatio, Constants.liftSlowRatio
     );
 
     private final RE_DcMotorExParams lift2Params = new RE_DcMotorExParams(
-            Constants.liftMin1, Constants.liftMax1, Constants.liftSlow,
+            Constants.liftMin, Constants.liftMax, Constants.liftSlow,
             1, 1, Constants.liftUpRatio, Constants.liftDownRatio, Constants.liftSlowRatio
     );
 

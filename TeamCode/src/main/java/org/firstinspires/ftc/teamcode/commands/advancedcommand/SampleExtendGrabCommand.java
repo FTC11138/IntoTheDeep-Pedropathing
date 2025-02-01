@@ -7,33 +7,24 @@ import org.firstinspires.ftc.teamcode.hardware.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.util.Constants;
 
 
-public class SampleExtendPickupCommand extends CommandBase {
+public class SampleExtendGrabCommand extends CommandBase {
 
     private final Robot robot = Robot.getInstance();
 
-    private double dist;
-
     @Override
     public void initialize() {
+        assert robot.intakeSubsystem.armState == IntakeSubsystem.ArmState.INTAKE;
         robot.intakeSubsystem.setExtensionPower(1);
-        robot.intakeSubsystem.updateIntakeState(IntakeSubsystem.IntakeState.IN);
-    }
-
-    @Override
-    public void execute() {
-        dist = robot.intakeSubsystem.getDistance();
     }
 
     @Override
     public boolean isFinished() {
-        return dist < Constants.samplePickupTolerance;
+        return robot.sensorSubsystem.getIntakeSpeed() < Constants.samplePickupTurnSpeedTolerance || robot.intakeSubsystem.getExtensionPosition() >= Constants.extMax;
     }
 
     @Override
     public void end(boolean interrupted) {
-        robot.intakeSubsystem.setTargetExtensionPosition(Constants.extMin);
-        robot.intakeSubsystem.updateArmState(IntakeSubsystem.ArmState.UP);
-        robot.intakeSubsystem.updateIntakeState(IntakeSubsystem.IntakeState.STOP);
+        robot.intakeSubsystem.setExtensionPower(0);
     }
 
 }

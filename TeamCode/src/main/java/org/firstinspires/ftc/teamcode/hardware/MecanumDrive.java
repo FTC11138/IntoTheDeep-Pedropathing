@@ -1,19 +1,6 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.drivePIDFFeedForward;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.drivePIDFSwitch;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.forwardZeroPowerAcceleration;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.headingPIDFFeedForward;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.headingPIDFSwitch;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.lateralZeroPowerAcceleration;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.secondaryDrivePIDFFeedForward;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.secondaryHeadingPIDFFeedForward;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.secondaryTranslationalPIDFFeedForward;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.translationalPIDFFeedForward;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.translationalPIDFSwitch;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.useSecondaryDrivePID;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.useSecondaryHeadingPID;
-import static org.firstinspires.ftc.teamcode.util.DriveConstants.useSecondaryTranslationalPID;
+import static org.firstinspires.ftc.teamcode.util.DriveConstants.*;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -25,6 +12,7 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.pedroPathing.follower.DriveVectorScaler;
+import org.firstinspires.ftc.teamcode.pedroPathing.localization.Localizer;
 import org.firstinspires.ftc.teamcode.pedroPathing.localization.Pose;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.BezierPoint;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.MathFunctions;
@@ -34,13 +22,14 @@ import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.PathCallback;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.PathChain;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Point;
 import org.firstinspires.ftc.teamcode.pedroPathing.pathGeneration.Vector;
-import org.firstinspires.ftc.teamcode.util.DriveConstants;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.DashboardPoseTracker;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.Drawing;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.FilteredPIDFController;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.KalmanFilter;
 import org.firstinspires.ftc.teamcode.pedroPathing.util.PIDFController;
 import org.firstinspires.ftc.teamcode.util.Configuration;
+import org.firstinspires.ftc.teamcode.util.DriveConstants;
+import org.firstinspires.ftc.teamcode.util.Globals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,7 +79,6 @@ public class MecanumDrive {
     private boolean holdPositionAtEnd;
     private boolean teleopDrive;
 
-    private double maxPower = 1;
     private double previousSecondaryTranslationalIntegral;
     private double previousTranslationalIntegral;
     private double holdPointTranslationalScaling = DriveConstants.holdPointTranslationalScaling;
@@ -141,9 +129,7 @@ public class MecanumDrive {
 
 
 
-
     public Configuration names = new Configuration();
-
 
 
 
@@ -159,12 +145,11 @@ public class MecanumDrive {
         driveVectorScaler = new DriveVectorScaler(DriveConstants.frontLeftVector);
         poseUpdater = new PoseUpdater(hardwareMap);
 
-        leftFront = hardwareMap.get(DcMotorEx.class, names.leftFront);
-        leftRear = hardwareMap.get(DcMotorEx.class, names.leftRear);
-        rightRear = hardwareMap.get(DcMotorEx.class, names.rightRear);
-        rightFront = hardwareMap.get(DcMotorEx.class, names.rightFront);
+        leftFront = hardwareMap.get(DcMotorEx.class, "lf");
+        leftRear = hardwareMap.get(DcMotorEx.class, "lr");
+        rightRear = hardwareMap.get(DcMotorEx.class, "rr");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rf");
 
-        // TODO: Make sure that this is the direction your motors need to be reversed in.
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
         rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -187,23 +172,55 @@ public class MecanumDrive {
     }
 
     /**
+     * This initializes the follower.
+     * In this, the DriveVectorScaler and PoseUpdater is instantiated, the drive motors are
+     * initialized and their behavior is set, and the variables involved in approximating first and
+     * second derivatives for teleop are set.
+     * @param localizer the localizer you wish to use
+     */
+    public void initializePedro(Localizer localizer) {
+        driveVectorScaler = new DriveVectorScaler(DriveConstants.frontLeftVector);
+        poseUpdater = new PoseUpdater(hardwareMap, localizer);
+
+        //        rightFront = hardwareMap.get(DcMotorEx.class, "motor_rf");
+        //        rightRear = hardwareMap.get(DcMotorEx.class, "motor_rb");
+        //        leftFront = hardwareMap.get(DcMotorEx.class, "motor_lf");
+        //        leftRear = hardwareMap.get(DcMotorEx.class, "motor_lb");
+
+        leftFront = hardwareMap.get(DcMotorEx.class, leftFrontMotorName);
+        leftRear = hardwareMap.get(DcMotorEx.class, leftRearMotorName);
+        rightRear = hardwareMap.get(DcMotorEx.class, rightRearMotorName);
+        rightFront = hardwareMap.get(DcMotorEx.class, rightFrontMotorName);
+
+        // TODO: Make sure that this is the direction your motors need to be reversed in.
+        leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        motors = Arrays.asList(leftFront, leftRear, rightFront, rightRear);
+
+        for (DcMotorEx motor : motors) {
+            MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
+            motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
+            motor.setMotorType(motorConfigurationType);
+        }
+
+        for (DcMotorEx motor : motors) {
+            motor.setZeroPowerBehavior(Globals.IS_AUTO ? DcMotor.ZeroPowerBehavior.FLOAT : DcMotor.ZeroPowerBehavior.BRAKE);
+        }
+
+        dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
+
+        breakFollowing();
+    }
+
+    /**
      * This sets the maximum power the motors are allowed to use.
      *
      * @param set This caps the motor power from [0, 1].
      */
     public void setMaxPower(double set) {
-        maxPower = MathFunctions.clamp(set, 0, 1);
-    }
-
-    /**
-     * This handles the limiting of the drive powers array to the max power.
-     */
-    public void limitDrivePowers() {
-        for (int i = 0; i < drivePowers.length; i++) {
-            if (Math.abs(drivePowers[i]) > maxPower) {
-                drivePowers[i] = maxPower * MathFunctions.getSign(drivePowers[i]);
-            }
-        }
+        driveVectorScaler.setMaxPowerScaling(set);
     }
 
     /**
@@ -467,8 +484,6 @@ public class MecanumDrive {
 
                     drivePowers = driveVectorScaler.getDrivePowers(MathFunctions.scalarMultiplyVector(getTranslationalCorrection(), holdPointTranslationalScaling), MathFunctions.scalarMultiplyVector(getHeadingVector(), holdPointHeadingScaling), new Vector(), poseUpdater.getPose().getHeading());
 
-                    limitDrivePowers();
-
                     for (int i = 0; i < motors.size(); i++) {
                         motors.get(i).setPower(drivePowers[i]);
                     }
@@ -479,8 +494,6 @@ public class MecanumDrive {
                         if (followingPathChain) updateCallbacks();
 
                         drivePowers = driveVectorScaler.getDrivePowers(getCorrectiveVector(), getHeadingVector(), getDriveVector(), poseUpdater.getPose().getHeading());
-
-                        limitDrivePowers();
 
                         for (int i = 0; i < motors.size(); i++) {
                             motors.get(i).setPower(drivePowers[i]);
@@ -523,8 +536,6 @@ public class MecanumDrive {
             calculateAveragedVelocityAndAcceleration();
 
             drivePowers = driveVectorScaler.getDrivePowers(getCentripetalForceCorrection(), teleopHeadingVector, teleopDriveVector, poseUpdater.getPose().getHeading());
-
-            limitDrivePowers();
 
             for (int i = 0; i < motors.size(); i++) {
                 motors.get(i).setPower(drivePowers[i]);
@@ -691,19 +702,19 @@ public class MecanumDrive {
     public Vector getDriveVector() {
         if (!useDrive) return new Vector();
         if (followingPathChain && chainIndex < currentPathChain.size() - 1) {
-            return new Vector(1, currentPath.getClosestPointTangentVector().getTheta());
+            return new Vector(driveVectorScaler.getMaxPowerScaling(), currentPath.getClosestPointTangentVector().getTheta());
         }
 
         driveError = getDriveVelocityError();
 
         if (Math.abs(driveError) < drivePIDFSwitch && useSecondaryDrivePID) {
             secondaryDrivePIDF.updateError(driveError);
-            driveVector = new Vector(MathFunctions.clamp(secondaryDrivePIDF.runPIDF() + secondaryDrivePIDFFeedForward * MathFunctions.getSign(driveError), -1, 1), currentPath.getClosestPointTangentVector().getTheta());
+            driveVector = new Vector(MathFunctions.clamp(secondaryDrivePIDF.runPIDF() + secondaryDrivePIDFFeedForward * MathFunctions.getSign(driveError), -driveVectorScaler.getMaxPowerScaling(), driveVectorScaler.getMaxPowerScaling()), currentPath.getClosestPointTangentVector().getTheta());
             return MathFunctions.copyVector(driveVector);
         }
 
         drivePIDF.updateError(driveError);
-        driveVector = new Vector(MathFunctions.clamp(drivePIDF.runPIDF() + drivePIDFFeedForward * MathFunctions.getSign(driveError), -1, 1), currentPath.getClosestPointTangentVector().getTheta());
+        driveVector = new Vector(MathFunctions.clamp(drivePIDF.runPIDF() + drivePIDFFeedForward * MathFunctions.getSign(driveError), -driveVectorScaler.getMaxPowerScaling(), driveVectorScaler.getMaxPowerScaling()), currentPath.getClosestPointTangentVector().getTheta());
         return MathFunctions.copyVector(driveVector);
     }
 
@@ -772,11 +783,11 @@ public class MecanumDrive {
         headingError = MathFunctions.getTurnDirection(poseUpdater.getPose().getHeading(), currentPath.getClosestPointHeadingGoal()) * MathFunctions.getSmallestAngleDifference(poseUpdater.getPose().getHeading(), currentPath.getClosestPointHeadingGoal());
         if (Math.abs(headingError) < headingPIDFSwitch && useSecondaryHeadingPID) {
             secondaryHeadingPIDF.updateError(headingError);
-            headingVector = new Vector(MathFunctions.clamp(secondaryHeadingPIDF.runPIDF() + secondaryHeadingPIDFFeedForward * MathFunctions.getTurnDirection(poseUpdater.getPose().getHeading(), currentPath.getClosestPointHeadingGoal()), -1, 1), poseUpdater.getPose().getHeading());
+            headingVector = new Vector(MathFunctions.clamp(secondaryHeadingPIDF.runPIDF() + secondaryHeadingPIDFFeedForward * MathFunctions.getTurnDirection(poseUpdater.getPose().getHeading(), currentPath.getClosestPointHeadingGoal()), -driveVectorScaler.getMaxPowerScaling(), driveVectorScaler.getMaxPowerScaling()), poseUpdater.getPose().getHeading());
             return MathFunctions.copyVector(headingVector);
         }
         headingPIDF.updateError(headingError);
-        headingVector = new Vector(MathFunctions.clamp(headingPIDF.runPIDF() + headingPIDFFeedForward * MathFunctions.getTurnDirection(poseUpdater.getPose().getHeading(), currentPath.getClosestPointHeadingGoal()), -1, 1), poseUpdater.getPose().getHeading());
+        headingVector = new Vector(MathFunctions.clamp(headingPIDF.runPIDF() + headingPIDFFeedForward * MathFunctions.getTurnDirection(poseUpdater.getPose().getHeading(), currentPath.getClosestPointHeadingGoal()), -driveVectorScaler.getMaxPowerScaling(), driveVectorScaler.getMaxPowerScaling()), poseUpdater.getPose().getHeading());
         return MathFunctions.copyVector(headingVector);
     }
 
@@ -793,7 +804,7 @@ public class MecanumDrive {
         Vector translational = getTranslationalCorrection();
         Vector corrective = MathFunctions.addVectors(centripetal, translational);
 
-        if (corrective.getMagnitude() > 1) {
+        if (corrective.getMagnitude() > driveVectorScaler.getMaxPowerScaling()) {
             return MathFunctions.addVectors(centripetal, MathFunctions.scalarMultiplyVector(translational, driveVectorScaler.findNormalizingScaling(centripetal, translational)));
         }
 
@@ -842,7 +853,7 @@ public class MecanumDrive {
             translationalVector = MathFunctions.addVectors(translationalVector, translationalIntegralVector);
         }
 
-        translationalVector.setMagnitude(MathFunctions.clamp(translationalVector.getMagnitude(), 0, 1));
+        translationalVector.setMagnitude(MathFunctions.clamp(translationalVector.getMagnitude(), 0, driveVectorScaler.getMaxPowerScaling()));
 
         this.translationalVector = MathFunctions.copyVector(translationalVector);
 
@@ -881,7 +892,7 @@ public class MecanumDrive {
             curvature = (yDoublePrime) / (Math.pow(Math.sqrt(1 + Math.pow(yPrime, 2)), 3));
         }
         if (Double.isNaN(curvature)) return new Vector();
-        centripetalVector = new Vector(MathFunctions.clamp(DriveConstants.centripetalScaling * DriveConstants.mass * Math.pow(MathFunctions.dotProduct(poseUpdater.getVelocity(), MathFunctions.normalizeVector(currentPath.getClosestPointTangentVector())), 2) * curvature, -1, 1), currentPath.getClosestPointTangentVector().getTheta() + Math.PI / 2 * MathFunctions.getSign(currentPath.getClosestPointNormalVector().getTheta()));
+        centripetalVector = new Vector(MathFunctions.clamp(DriveConstants.centripetalScaling * DriveConstants.mass * Math.pow(MathFunctions.dotProduct(poseUpdater.getVelocity(), MathFunctions.normalizeVector(currentPath.getClosestPointTangentVector())), 2) * curvature, -driveVectorScaler.getMaxPowerScaling(), driveVectorScaler.getMaxPowerScaling()), currentPath.getClosestPointTangentVector().getTheta() + Math.PI / 2 * MathFunctions.getSign(currentPath.getClosestPointNormalVector().getTheta()));
         return centripetalVector;
     }
 
@@ -1017,7 +1028,7 @@ public class MecanumDrive {
     /**
      * This resets the IMU, if applicable.
      */
-    public void resetIMU() throws InterruptedException {
+    private void resetIMU() throws InterruptedException {
         poseUpdater.resetIMU();
     }
 }

@@ -9,6 +9,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.DepositSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.hardware.subsystems.SensorSubsystem;
 import org.firstinspires.ftc.teamcode.hardware.subsystems.SpecimenSubsystem;
 import org.firstinspires.ftc.teamcode.util.wrappers.RE_SubsystemBase;
 import org.firstinspires.ftc.teamcode.vision.SampleAlignmentProcessor;
@@ -35,6 +36,7 @@ public class Robot extends MecanumDrive {
     public DepositSubsystem depositSubsystem;
     public IntakeSubsystem intakeSubsystem;
     public SpecimenSubsystem specimenSubsystem;
+    public SensorSubsystem sensorSubsystem;
     public ArrayList<RE_SubsystemBase> subsystems;
 
 
@@ -50,15 +52,18 @@ public class Robot extends MecanumDrive {
         subsystems = new ArrayList<>();
 
         this.depositSubsystem = new DepositSubsystem(hardwareMap, names.lift, names.lift2, names.bucket);
-        this.intakeSubsystem = new IntakeSubsystem(hardwareMap, names.extension, names.arm1, names.arm2, names.intake, names.leds, names.intakeSensor);
+        this.intakeSubsystem = new IntakeSubsystem(hardwareMap, names.extension, names.arm1, names.arm2, names.intake, names.leds, names.intakeSensor, names.intakePush);
         this.specimenSubsystem = new SpecimenSubsystem(hardwareMap, names.specimenClaw, names.specimenLift);
 
-        this.webcam = hardwareMap.get(WebcamName.class, names.webcam);
-        setupCamera();
+        this.sensorSubsystem = new SensorSubsystem(hardwareMap, names.intakeSensor, names.outtakeSensor, names.rightRear, names.webcam);
+
+
+//        this.webcam = hardwareMap.get(WebcamName.class, names.webcam);
+//        setupCamera();
 //        stopCamera();
-
-
-
+//
+//
+//
 //        this.limelight = hardwareMap.get(Limelight3A.class, names.limelight);
 
     }
@@ -71,6 +76,7 @@ public class Robot extends MecanumDrive {
         for (RE_SubsystemBase subsystem : subsystems) {
             subsystem.periodic();
         }
+        update();
     }
 
     public void updateData() {

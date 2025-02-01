@@ -48,9 +48,9 @@ public class RE_DcMotorEx {
     }
 
     public void setPosition(double power, int target) {
-        motor.setPower(power);
         motor.setTargetPosition(target);
         motor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        motor.setPower(power);
     }
 
     public void setMode(DcMotor.RunMode mode) {

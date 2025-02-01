@@ -42,7 +42,7 @@ public class SpecimenSubsystem extends RE_SubsystemBase {
     public SpecimenSubsystem(HardwareMap hardwareMap, String specimenClaw, String specimenLift) {
         this.specimenLift = new RE_DcMotorEx(hardwareMap.get(DcMotorEx.class, specimenLift), specimenLiftParams);
         this.specimenClaw = hardwareMap.get(Servo.class, specimenClaw);
-        this.specimenClawState = SpecimenClawState.CLOSED;
+        this.specimenClawState = SpecimenClawState.OPEN;
         this.specimenLiftState = SpecimenLiftState.DOWN;
 
         Robot.getInstance().subsystems.add(this);

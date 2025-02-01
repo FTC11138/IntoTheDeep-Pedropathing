@@ -25,8 +25,12 @@ public class Configuration {
     public final String arm1 = "arm1";
     public final String arm2 = "arm2";
     public final String intake = "intake";
+    public final String intakePush = "intakePush";
 
     public final String intakeSensor = "intakeSens";
+    public final String outtakeSensor = "outtakeSens";
+    public final String intakeEncoder = "intakeEnc";
+
 
     public final String specimenClaw = "sClaw";
 

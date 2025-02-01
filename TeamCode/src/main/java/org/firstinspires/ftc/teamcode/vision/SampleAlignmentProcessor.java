@@ -45,7 +45,7 @@ public class SampleAlignmentProcessor implements VisionProcessor {
         Mat hsvMat = new Mat();
         Mat maskYellow = new Mat();
         Mat maskRed = new Mat();
-        Mat maskRed1 = new Mat();
+        Mat maskRed1 =  new Mat();
         Mat maskRed2 = new Mat();
         Mat maskBlue = new Mat();
         Mat maskCombined = new Mat();
@@ -120,8 +120,8 @@ public class SampleAlignmentProcessor implements VisionProcessor {
                 subMat.release();
 
                 // ignore samples of opposite alliance
-                if (detectedColor == SampleColor.RED && Globals.ALLIANCE == Globals.Alliance.BLUE ||
-                        detectedColor == SampleColor.BLUE && Globals.ALLIANCE == Globals.Alliance.RED) continue;
+                if (detectedColor == SampleColor.RED && Globals.ALLIANCE == Globals.COLORS.BLUE ||
+                        detectedColor == SampleColor.BLUE && Globals.ALLIANCE == Globals.COLORS.RED) continue;
 
                 maxArea = area;
                 largestRect = rect;

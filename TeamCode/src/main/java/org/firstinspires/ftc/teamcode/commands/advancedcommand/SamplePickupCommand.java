@@ -22,7 +22,6 @@ public class SamplePickupCommand extends SequentialCommandGroup {
                         () -> Robot.getInstance().data.intaking
                 ),
                 new SampleAlignCommand(),
-                new SampleExtendPickupCommand(),
                 new IntakePullBackCommand()
         );
     }
